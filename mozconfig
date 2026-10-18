@@ -1,0 +1,5 @@
+# Artifact build: download Mozilla's prebuilt engine and only build the front end.
+ac_add_options --enable-artifact-builds
+# The prebuilt release engine expects "Firefox GPU Helper" etc., so local branding must match.
+ac_add_options --with-branding=browser/branding/official
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-artifact
