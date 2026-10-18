@@ -1,0 +1,45 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.tabbrowser-tab[custom-tab-hint] .tab-label::before {
+  margin-inline-end: 0.4em;
+  opacity: var(--opacity-deemphasized-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.tabbrowser-tab[custom-tab-hint="1"] .tab-label::before {
+  content: "(1)";
+}
+
+.tabbrowser-tab[custom-tab-hint="2"] .tab-label::before {
+  content: "(2)";
+}
+
+.tabbrowser-tab[custom-tab-hint="3"] .tab-label::before {
+  content: "(3)";
+}
+
+.tabbrowser-tab[custom-tab-hint="4"] .tab-label::before {
+  content: "(4)";
+}
+
+.tabbrowser-tab[custom-tab-hint="5"] .tab-label::before {
+  content: "(5)";
+}
+
+.tabbrowser-tab[custom-tab-hint="6"] .tab-label::before {
+  content: "(6)";
+}
+
+.tabbrowser-tab[custom-tab-hint="7"] .tab-label::before {
+  content: "(7)";
+}
+
+.tabbrowser-tab[custom-tab-hint="8"] .tab-label::before {
+  content: "(8)";
+}
+
+.tabbrowser-tab[custom-tab-hint="9"] .tab-label::before {
+  content: "(9)";
+}

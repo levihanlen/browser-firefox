@@ -1,1 +1,2 @@
 category browser-before-ui-startup moz-src:///browser/custom/CustomStartup.sys.mjs CustomStartup.init
+category browser-window-load moz-src:///browser/custom/TabNumberHints.sys.mjs TabNumberHints.initWindow

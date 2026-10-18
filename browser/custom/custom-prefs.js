@@ -18,6 +18,7 @@ pref(
 // Tabs
 pref("browser.tabs.closeWindowWithLastTab", false);
 pref("browser.tabs.loadInBackground", false);
+pref("browser.custom.tabNumberHints.enabled", true);
 
 // Telemetry, studies and experiments
 pref("datareporting.healthreport.uploadEnabled", false);

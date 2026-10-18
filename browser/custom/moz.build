@@ -8,7 +8,12 @@ JS_PREFERENCE_FILES += ["custom-prefs.js"]
 
 EXTRA_COMPONENTS += ["custom.manifest"]
 
-MOZ_SRC_FILES += ["CustomStartup.sys.mjs"]
+JAR_MANIFESTS += ["jar.mn"]
+
+MOZ_SRC_FILES += [
+    "CustomStartup.sys.mjs",
+    "TabNumberHints.sys.mjs",
+]
 
 BROWSER_CHROME_MANIFESTS += ["test/browser/browser.toml"]
 
