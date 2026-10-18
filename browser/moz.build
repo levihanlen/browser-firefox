@@ -14,6 +14,7 @@ DIRS += [
     "actors",
     "base",
     "components",
+    "custom",
     "fonts",
     "fxr",
     "locales",
