@@ -1,0 +1,207 @@
+#!/bin/bash
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# lh browser's install and update tool.
+#
+#   ./lh install   Build, package and sign lh browser, then put it in
+#                  /Applications. If it's open, the new version waits until
+#                  it's closed (or until you click "Restart to update").
+#   ./lh hooks     Run `./lh install` in the background after every commit.
+#   ./lh status    Show the installed and the waiting version.
+#
+# Updates are staged in ~/Library/Application Support/lh browser/updates,
+# next to the profile, and swapped in by apply-update.sh, which the browser
+# also runs when you quit it.
+
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_NAME="lh browser"
+INSTALLED="/Applications/$APP_NAME.app"
+DATA="$HOME/Library/Application Support/$APP_NAME"
+UPDATES="$DATA/updates"
+LOG="$HOME/Library/Logs/lh-browser-update.log"
+PACKAGED="$REPO/obj-artifact/dist/firefox/$APP_NAME.app"
+
+# Builds can be started by git hooks, which get a minimal PATH.
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+say() {
+  echo "lh: $*"
+}
+
+signing_identity() {
+  security find-identity -v -p codesigning 2>/dev/null |
+    sed -n 's/.*"\(Developer ID Application: [^"]*\)".*/\1/p' | head -n 1
+}
+
+app_is_running() {
+  pgrep -f "$INSTALLED/Contents/MacOS/" >/dev/null 2>&1
+}
+
+write_apply_script() {
+  cat >"$UPDATES/apply-update.sh" <<'EOF'
+#!/bin/sh
+# Written by ./lh install. Swaps the waiting update into /Applications once
+# lh browser has quit, and reopens it when passed --relaunch.
+mkdir -p "$HOME/Library/Logs"
+exec >>"$HOME/Library/Logs/lh-browser-update.log" 2>&1
+echo "apply-update: $(date) $*"
+updates="$(cd "$(dirname "$0")" && pwd)"
+app="/Applications/lh browser.app"
+new="$updates/lh browser.app"
+[ -d "$new" ] || exit 0
+while pgrep -f "$app/Contents/MacOS/" >/dev/null 2>&1; do
+  sleep 0.5
+done
+rm -rf "$updates/previous.app"
+if [ -d "$app" ] && ! mv "$app" "$updates/previous.app"; then
+  echo "apply-update: couldn't move the old app aside; the update stays staged"
+  [ "${1:-}" = "--relaunch" ] && open "$app"
+  exit 1
+fi
+if ! mv "$new" "$app"; then
+  echo "apply-update: couldn't move the new app into place; restoring the old one"
+  mv "$updates/previous.app" "$app"
+  [ "${1:-}" = "--relaunch" ] && open "$app"
+  exit 1
+fi
+mv "$updates/update.json" "$updates/installed.json" 2>/dev/null
+rm -rf "$updates/previous.app"
+touch "$app"
+# Firefox only drops its cached scripts when the build ID changes, and every
+# lh browser build reports the prebuilt engine's. This asks each profile to
+# rebuild its caches once on the next launch.
+for compat in "$updates/../Profiles/"*/compatibility.ini; do
+  [ -f "$compat" ] || continue
+  grep -q '^InvalidateCaches=1' "$compat" || printf 'InvalidateCaches=1\n' >>"$compat"
+done
+echo "apply-update: installed $(sed -n 's/.*"commit": *"\([0-9a-f]\{12\}\).*/\1/p' "$app/Contents/Resources/lh-build.json")"
+[ "${1:-}" = "--relaunch" ] && open "$app"
+exit 0
+EOF
+}
+
+install() {
+  mkdir -p "$UPDATES" "$(dirname "$LOG")"
+
+  # One build at a time. A commit that lands mid-build asks for another run.
+  if ! mkdir "$UPDATES/.lock" 2>/dev/null; then
+    touch "$UPDATES/.again"
+    say "a build is already running; it will run again when it finishes"
+    return 0
+  fi
+  trap 'rmdir "$UPDATES/.lock" 2>/dev/null || true' EXIT
+
+  while :; do
+    rm -f "$UPDATES/.again"
+    build_and_stage
+    [ -e "$UPDATES/.again" ] || break
+  done
+
+  if app_is_running; then
+    say "lh browser is open, so the update will be applied when you quit it"
+  else
+    /bin/sh "$UPDATES/apply-update.sh"
+    say "installed $INSTALLED"
+  fi
+}
+
+build_and_stage() {
+  cd "$REPO"
+  local commit subject
+  commit="$(git rev-parse HEAD)"
+  subject="$(git log -1 --format=%s)"
+  say "building $(git rev-parse --short HEAD): $subject"
+
+  ./mach build
+  ./mach package
+
+  local stage="$UPDATES/staging"
+  rm -rf "$stage"
+  mkdir -p "$stage"
+  ditto "$PACKAGED" "$stage/$APP_NAME.app"
+
+  # The build folder can hold helper executables left over from earlier
+  # branding; a bundle with stray executables can't be signed.
+  local helper exe
+  for helper in "$stage/$APP_NAME.app/Contents/MacOS/"*.app; do
+    exe="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$helper/Contents/Info.plist")"
+    find "$helper/Contents/MacOS" -type f ! -name "$exe" -delete
+  done
+
+  # The prebuilt engine has Firefox's app name and profile location compiled
+  # in, which would put lh browser's profiles in Firefox's folder. macOS
+  # passes LSEnvironment to the app on every launch, and these two variables
+  # override that folder.
+  local plist="$stage/$APP_NAME.app/Contents/Info.plist"
+  /usr/libexec/PlistBuddy \
+    -c "Add :LSEnvironment:MOZ_APP_DATA string $DATA" \
+    -c "Add :LSEnvironment:MOZ_LOCAL_APP_DATA string $HOME/Library/Caches/$APP_NAME" \
+    "$plist"
+
+  local built_at
+  built_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  python3 -c 'import json, sys; json.dump(dict(commit=sys.argv[1], subject=sys.argv[2], builtAt=sys.argv[3]), open(sys.argv[4], "w"))' \
+    "$commit" "$subject" "$built_at" "$stage/$APP_NAME.app/Contents/Resources/lh-build.json"
+
+  local identity
+  identity="$(signing_identity)"
+  if [ -n "$identity" ]; then
+    ./mach macos-sign -a "$stage/$APP_NAME.app" -s "$identity" \
+      -e production-without-restricted -c release
+  else
+    say "no Developer ID certificate found; signing ad hoc"
+    ./mach macos-sign -a "$stage/$APP_NAME.app" -e developer -c release
+  fi
+
+  rm -rf "$UPDATES/$APP_NAME.app"
+  mv "$stage/$APP_NAME.app" "$UPDATES/$APP_NAME.app"
+  rm -rf "$stage"
+  cp "$UPDATES/$APP_NAME.app/Contents/Resources/lh-build.json" "$UPDATES/update.json"
+  write_apply_script
+  say "staged $(git rev-parse --short HEAD)"
+}
+
+hooks() {
+  local hooks_dir hook
+  hooks_dir="$(git -C "$REPO" rev-parse --git-path hooks)"
+  case "$hooks_dir" in /*) ;; *) hooks_dir="$REPO/$hooks_dir" ;; esac
+  mkdir -p "$hooks_dir"
+  for hook in post-commit post-merge post-rewrite; do
+    cat >"$hooks_dir/$hook" <<EOF
+#!/bin/sh
+# Installed by ./lh hooks: rebuild lh browser in the background after changes
+# land on main.
+[ "\$(git rev-parse --abbrev-ref HEAD)" = main ] || exit 0
+mkdir -p "\$HOME/Library/Logs"
+nohup "$REPO/lh" install >>"$LOG" 2>&1 &
+EOF
+    chmod +x "$hooks_dir/$hook"
+  done
+  say "lh browser will rebuild after every commit on main (log: $LOG)"
+}
+
+status() {
+  local file
+  for file in "$INSTALLED/Contents/Resources/lh-build.json" "$UPDATES/update.json"; do
+    if [ -f "$file" ]; then
+      echo "$file:"
+      python3 -c 'import json, sys; d = json.load(open(sys.argv[1])); print("  ", d["commit"][:12], d["subject"], "(" + d["builtAt"] + ")")' "$file"
+    fi
+  done
+  [ -d "$UPDATES/.lock" ] && echo "a build is running (log: $LOG)"
+  return 0
+}
+
+case "${1:-}" in
+install) install ;;
+hooks) hooks ;;
+status) status ;;
+*)
+  sed -n '6,13p' "$0" | sed 's/^# \{0,1\}//'
+  exit 1
+  ;;
+esac
