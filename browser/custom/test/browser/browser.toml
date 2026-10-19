@@ -1,5 +1,7 @@
 [DEFAULT]
 
+["browser_custom_branding.js"]
+
 ["browser_custom_startup.js"]
 
 ["browser_custom_tab_number_hints.js"]

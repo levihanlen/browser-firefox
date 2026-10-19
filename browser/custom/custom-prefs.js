@@ -4,6 +4,14 @@
 
 /* global pref */
 
+// The prebuilt engine in artifact builds was compiled for Firefox and looks
+// for "Firefox GPU Helper" and "Firefox Media Plugin Helper", while this app
+// packages "lh browser ..." helpers. Those helpers only exist to carry
+// Mozilla's code-signing entitlements, so run both process types in
+// plugin-container instead.
+pref("layers.gpu-process-executable.enabled", false);
+pref("media.plugin_helper_process.enabled", false);
+
 // Theme matching levihanlen.com (CustomTheme.sys.mjs, content/theme.css).
 // macOS context menus are drawn natively unless this is off, and native menus
 // can't be styled.

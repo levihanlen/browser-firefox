@@ -1,0 +1,33 @@
+{
+  "fill": {
+    "solid": "srgb:0.06667,0.06275,0.07843,1.00000"
+  },
+  "groups": [
+    {
+      "blur-material": null,
+      "hidden": false,
+      "layers": [
+        {
+          "glass": false,
+          "hidden": false,
+          "image-name": "icon-mark.svg",
+          "name": "icon-mark",
+          "opacity": 1
+        }
+      ],
+      "opacity": 1,
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0
+      },
+      "specular": false,
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": "shared"
+  }
+}

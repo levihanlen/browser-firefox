@@ -20,10 +20,10 @@
 -mozmonitor-brand-name = Mozilla Monitor
 -pocket-brand-name = Pocket
 -send-brand-name = Firefox Send
--screenshots-brand-name = Firefox Screenshots
+-screenshots-brand-name = lh browser Screenshots
 -mozilla-vpn-brand-name = Mozilla VPN
 -profiler-brand-name = Firefox Profiler
--translations-brand-name = Firefox Translations
+-translations-brand-name = lh browser Translations
 -relay-brand-name = Firefox Relay
 -relay-brand-short-name = Relay
 -fakespot-brand-name = Fakespot
@@ -43,21 +43,21 @@
 
 # “Suggest” can be localized, “Firefox” must be treated as a brand
 # and kept in English.
--firefox-suggest-brand-name = Firefox Suggest
+-firefox-suggest-brand-name = lh browser Suggest
 
 # ”Home" can be localized, “Firefox” must be treated as a brand
 # and kept in English.
--firefox-home-brand-name = Firefox Home
+-firefox-home-brand-name = lh browser Home
 
 # View" can be localized, “Firefox” must be treated as a brand
 # and kept in English.
--firefoxview-brand-name = Firefox View
+-firefoxview-brand-name = lh browser View
 
 # Firefox Labs is the name for a page in Settings to allow users to learn about
 # experimental and in-development features, and turn those features on and off.
 # The "Labs" portion can be localized, “Firefox” must be treated as a brand
 # and kept in English.
--firefoxlabs-brand-name = Firefox Labs
+-firefoxlabs-brand-name = lh browser Labs
 
 -smart-window-brand-name =
     { $plural-form ->
