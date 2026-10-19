@@ -4,3 +4,8 @@
 
 browser.jar:
     content/browser/custom/tab-number-hints.css (content/tab-number-hints.css)
+    content/browser/custom/theme.css (content/theme.css)
+    content/browser/custom/fonts/eb-garamond-latin.woff2 (content/fonts/eb-garamond-latin.woff2)
+    content/browser/custom/fonts/eb-garamond-latin-ext.woff2 (content/fonts/eb-garamond-latin-ext.woff2)
+    content/browser/custom/fonts/eb-garamond-italic-latin.woff2 (content/fonts/eb-garamond-italic-latin.woff2)
+    content/browser/custom/fonts/eb-garamond-italic-latin-ext.woff2 (content/fonts/eb-garamond-italic-latin-ext.woff2)

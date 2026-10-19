@@ -4,6 +4,17 @@
 
 /* global pref */
 
+// Theme matching levihanlen.com (CustomTheme.sys.mjs, content/theme.css).
+// macOS context menus are drawn natively unless this is off, and native menus
+// can't be styled.
+pref("browser.custom.theme.enabled", true);
+pref("widget.macos.native-context-menus", false);
+// Find-in-page highlights in the site's selection colors.
+pref("ui.textSelectAttentionBackground", "#dbdbdc");
+pref("ui.textSelectAttentionForeground", "#111014");
+pref("ui.textHighlightBackground", "#59585b");
+pref("ui.textHighlightForeground", "#ffffff");
+
 // Home and new tab
 pref("browser.startup.homepage", "https://www.levihanlen.com/search");
 pref("browser.custom.newTabURL", "https://www.levihanlen.com/search");

@@ -1,0 +1,459 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* The look of levihanlen.com, built from the utilities life-nextjs actually
+ * uses rather than anything new:
+ *
+ *   lh-btn-secondary / lh-btn-square  a button: hairline border, no fill
+ *   lh-btn-primary                    a selected or toggled button: solid
+ *                                     white with near-black text
+ *   lh-interactive                    anything clickable fades to half
+ *                                     strength under the pointer
+ *   text-darkest lh-bold / text-dark  the active row in a list vs the rest
+ *   lh-float                          a floating box: page color, hairline
+ *                                     border, no shadow
+ *   Eyebrow                           a group title: tiny, spaced, uppercase
+ *
+ * Nothing interactive ever gets a gray background.
+ *
+ * Registered as a user sheet by CustomTheme.sys.mjs, so every rule is scoped
+ * to Firefox's own documents and uses !important to win over the theme
+ * engine's inline values. Web pages are never matched. */
+
+/* This file defines the palette the design tokens are mapped onto, so it can't
+ * itself be written in terms of those tokens. */
+/* stylelint-disable stylelint-plugin-mozilla/use-design-tokens */
+
+/* EB Garamond, SIL Open Font License 1.1. */
+@font-face {
+  font-family: "Custom EB Garamond";
+  font-style: normal;
+  font-weight: 400 800;
+  src: url("chrome://browser/content/custom/fonts/eb-garamond-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Custom EB Garamond";
+  font-style: normal;
+  font-weight: 400 800;
+  src: url("chrome://browser/content/custom/fonts/eb-garamond-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Custom EB Garamond";
+  font-style: italic;
+  font-weight: 400 800;
+  src: url("chrome://browser/content/custom/fonts/eb-garamond-italic-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Custom EB Garamond";
+  font-style: italic;
+  font-weight: 400 800;
+  src: url("chrome://browser/content/custom/fonts/eb-garamond-italic-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Firefox's own pages. about:blank is left out on purpose: web pages use it
+ * for frames, and it must keep looking like the web. */
+@-moz-document url-prefix("chrome://browser/"), url-prefix("chrome://global/"),
+  url-prefix("chrome://mozapps/"), url-prefix("about:preferences"),
+  url-prefix("about:settings"), url-prefix("about:addons"),
+  url-prefix("about:downloads"), url-prefix("about:config"),
+  url-prefix("about:support"), url-prefix("about:profiles"),
+  url-prefix("about:logins"), url-prefix("about:privatebrowsing"),
+  url-prefix("about:certerror"), url-prefix("about:neterror"),
+  url-prefix("about:blocked"), url-prefix("about:httpsonlyerror"),
+  url-prefix("about:sessionrestore"), url-prefix("about:welcomeback"),
+  url-prefix("about:tabcrashed"), url-prefix("about:protections"),
+  url-prefix("about:policies"), url-prefix("about:firefoxview"),
+  url-prefix("about:home"), url-prefix("about:newtab"),
+  url-prefix("about:editprofile"), url-prefix("about:newprofile"),
+  url-prefix("about:deleteprofile"), url-prefix("about:robots"),
+  url-prefix("about:rights"), url-prefix("about:license"),
+  url-prefix("about:mozilla"), url-prefix("about:buildconfig") {
+  :root {
+    /* lightest, darkest, dark, medium and light in life-nextjs. */
+    --custom-bg: rgb(17, 16, 20);
+    --custom-text-strong: rgba(255, 255, 255, 0.85);
+    --custom-text: rgba(255, 255, 255, 0.65);
+    --custom-text-muted: rgba(255, 255, 255, 0.3);
+    --custom-line: rgba(179, 179, 179, 0.2);
+    --custom-radius: 2px;
+    --custom-font: "Custom EB Garamond", Georgia, serif;
+
+    color-scheme: dark !important;
+    scrollbar-color: rgba(255, 255, 255, 0.21) transparent !important;
+
+    --background-color-canvas: var(--custom-bg) !important;
+    --background-color-box: var(--custom-bg) !important;
+    --background-color-dimmed: transparent !important;
+    --background-color-dimmed-further: transparent !important;
+    --text-color: var(--custom-text-strong) !important;
+    --text-color-deemphasized: var(--custom-text) !important;
+    --icon-color: var(--custom-text-strong) !important;
+
+    --border-color: var(--custom-line) !important;
+    --border-color-deemphasized: var(--custom-line) !important;
+    --border-color-interactive: var(--custom-line) !important;
+    --border-color-interactive-hover: var(--custom-line) !important;
+    --border-color-interactive-active: var(--custom-line) !important;
+    --border-color-selected: var(--custom-text-strong) !important;
+    --border-width: 1px !important;
+
+    --border-radius-xsmall: var(--custom-radius) !important;
+    --border-radius-small: var(--custom-radius) !important;
+    --border-radius-medium: var(--custom-radius) !important;
+    --border-radius-large: var(--custom-radius) !important;
+    --border-radius-xlarge: var(--custom-radius) !important;
+    --border-radius-circle: var(--custom-radius) !important;
+    --focus-outline-width: 1px !important;
+
+    --box-shadow-level-1: none !important;
+    --box-shadow-level-2: none !important;
+    --box-shadow-level-3: none !important;
+    --box-shadow-level-4: none !important;
+
+    /* The site has no accent color. Its emphasis is the strongest white, and
+     * anything selected is that white with near-black on it. */
+    --color-accent-primary: var(--custom-text-strong) !important;
+    --color-accent-primary-hover: var(--custom-text-strong) !important;
+    --color-accent-primary-active: var(--custom-text-strong) !important;
+    --color-accent-primary-selected: var(--custom-text-strong) !important;
+    --text-color-accent-primary-selected: var(--custom-bg) !important;
+    --focus-outline-color: var(--custom-text) !important;
+
+    /* The site's tinted boxes: its accent colors at 20%. */
+    --background-color-information: oklch(80% 0.25 260 / 0.2) !important;
+    --background-color-success: oklch(80% 0.25 150 / 0.2) !important;
+    --background-color-warning: oklch(80% 0.25 90 / 0.2) !important;
+    --background-color-critical: oklch(80% 0.25 25 / 0.2) !important;
+
+    --link-color: var(--custom-text-strong) !important;
+    --link-color-hover: var(--custom-text-strong) !important;
+    --link-color-active: var(--custom-text-strong) !important;
+
+    /* lh-btn-secondary for every kind of button. */
+    --button-border-radius: var(--custom-radius) !important;
+    --button-font-weight: 500 !important;
+    --button-background-color: transparent !important;
+    --button-background-color-hover: transparent !important;
+    --button-background-color-active: transparent !important;
+    --button-background-color-ghost: transparent !important;
+    --button-background-color-ghost-hover: transparent !important;
+    --button-background-color-ghost-active: transparent !important;
+    --button-background-color-menu: transparent !important;
+    --button-background-color-menu-hover: transparent !important;
+    --button-background-color-menu-active: transparent !important;
+    --button-background-color-toolbar: transparent !important;
+    --button-background-color-toolbar-hover: transparent !important;
+    --button-background-color-toolbar-active: transparent !important;
+    --button-border-color: var(--custom-line) !important;
+    --button-border-color-hover: var(--custom-line) !important;
+    --button-border-color-active: var(--custom-line) !important;
+    --button-border-color-ghost: var(--custom-line) !important;
+    --button-border-color-ghost-hover: var(--custom-line) !important;
+    --button-border-color-ghost-active: var(--custom-line) !important;
+    --button-border-color-menu: var(--custom-line) !important;
+    --button-border-color-menu-hover: var(--custom-line) !important;
+    --button-border-color-menu-active: var(--custom-line) !important;
+    --button-border-color-toolbar: var(--custom-line) !important;
+    --button-border-color-toolbar-hover: var(--custom-line) !important;
+    --button-border-color-toolbar-active: var(--custom-line) !important;
+    --button-text-color: var(--custom-text-strong) !important;
+    --button-text-color-hover: var(--custom-text-strong) !important;
+    --button-text-color-active: var(--custom-text-strong) !important;
+    --button-text-color-ghost: var(--custom-text-strong) !important;
+    --button-text-color-ghost-hover: var(--custom-text-strong) !important;
+    --button-text-color-ghost-active: var(--custom-text-strong) !important;
+
+    /* lh-btn-primary, which is also how a selected or toggled button looks.
+     * It has no border: one in the same translucent white would be painted
+     * over the fill and show as a brighter ring. */
+    --button-background-color-primary: var(--custom-text-strong) !important;
+    --button-background-color-primary-hover: var(--custom-text-strong) !important;
+    --button-background-color-primary-active: var(--custom-text-strong) !important;
+    --button-border-color-primary: transparent !important;
+    --button-text-color-primary: var(--custom-bg) !important;
+    --button-text-color-primary-hover: var(--custom-bg) !important;
+    --button-text-color-primary-active: var(--custom-bg) !important;
+    --button-background-color-selected: var(--custom-text-strong) !important;
+    --button-background-color-ghost-selected: var(--custom-text-strong) !important;
+    --button-background-color-menu-selected: transparent !important;
+    --button-border-color-selected: transparent !important;
+    --button-border-color-ghost-selected: transparent !important;
+    --button-text-color-selected: var(--custom-bg) !important;
+    --button-text-color-ghost-selected: var(--custom-bg) !important;
+    --button-text-color-menu-selected: var(--custom-text-strong) !important;
+
+    /* lh-float */
+    --card-background-color: var(--custom-bg) !important;
+    --card-border-color: var(--custom-line) !important;
+    --card-box-shadow: none !important;
+    --card-box-shadow-hover: none !important;
+    --popup-background-color: var(--custom-bg) !important;
+    --popup-border-color: var(--custom-line) !important;
+    --popup-box-shadow: none !important;
+    --panel-background-color: var(--custom-bg) !important;
+    --panel-border-color: var(--custom-line) !important;
+    --panel-text-color: var(--custom-text-strong) !important;
+
+    /* lh-input: no fill, hairline border, text-dark, placeholder in medium. */
+    --input-text-background-color: transparent !important;
+    --input-text-border-color: var(--custom-line) !important;
+    --input-border-color: var(--custom-line) !important;
+    --input-text-color: var(--custom-text) !important;
+
+    --sidebar-background-color: var(--custom-bg) !important;
+    --sidebar-text-color: var(--custom-text-strong) !important;
+    --sidebar-border-color: var(--custom-line) !important;
+    --sidebar-box-background: transparent !important;
+    --sidebar-box-border-color: var(--custom-line) !important;
+    --sidebar-box-border-width: 1px !important;
+
+    --table-background-color: var(--custom-bg) !important;
+    --table-border-color: var(--custom-line) !important;
+  }
+
+  /* The site sets type at 16px; Garamond's small x-height makes it read
+   * smaller than Firefox's system font at the same size, so its x-height is
+   * matched instead and Firefox's own sizes and layout still apply. */
+  * {
+    font-family: var(--custom-font) !important;
+    font-size-adjust: 0.5 !important;
+  }
+
+  :is(code, pre, kbd, samp, tt, .monospace) {
+    font-family: monospace !important;
+    font-size-adjust: none !important;
+  }
+
+  ::selection {
+    background-color: var(--custom-text) !important;
+    color: var(--custom-bg) !important;
+  }
+
+  ::placeholder {
+    color: var(--custom-text-muted) !important;
+  }
+
+  /* lh-interactive: anything clickable fades to half strength under the
+   * pointer. An element with a menu or panel open stays put. */
+  :is(button, toolbarbutton, menuitem, menu, richlistitem, a, input, select, textarea, .tabbrowser-tab, .urlbarView-row):not(
+    :disabled,
+    [disabled],
+    [open],
+    .urlbar-input
+  ) {
+    transition: opacity 150ms !important;
+
+    &:hover {
+      opacity: 0.5 !important;
+    }
+  }
+
+  /* lh-float. Menus and panels set their own colors on the popup element,
+   * and on macOS use the native translucent material. */
+  :is(menupopup, panel) {
+    appearance: none !important;
+    background-color: transparent !important;
+    color-scheme: dark !important;
+    -moz-window-shadow: none !important;
+    --text-color: var(--custom-text-strong) !important;
+    --panel-background-color: var(--custom-bg) !important;
+    --panel-text-color: var(--custom-text) !important;
+    --panel-border-color: var(--custom-line) !important;
+    --panel-border-radius: var(--custom-radius) !important;
+    --panel-box-shadow: none !important;
+    --panel-separator-color: var(--custom-line) !important;
+    --arrowpanel-background: var(--custom-bg) !important;
+    --arrowpanel-color: var(--custom-text) !important;
+    --arrowpanel-border-color: var(--custom-line) !important;
+    --menuitem-border-radius: var(--custom-radius) !important;
+  }
+
+  /* Rows in a menu, as in the site's command palette: text-dark, and the row
+   * the keyboard is on in text-darkest lh-bold. Hover is the fade above, so
+   * a row under the pointer isn't also made bold. */
+  :is(menuitem, menu, .subviewbutton):not([disabled]) {
+    color: var(--custom-text) !important;
+  }
+
+  :is(menuitem, menu)[_moz-menuactive] {
+    background-color: transparent !important;
+  }
+
+  :is(menuitem, menu)[_moz-menuactive]:not([disabled], :hover),
+  .subviewbutton:not([disabled]):focus-visible {
+    color: var(--custom-text-strong) !important;
+    font-weight: 500 !important;
+  }
+
+  /* Eyebrow */
+  :is(.subview-subheader, menucaption) {
+    color: var(--custom-text-muted) !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+  }
+
+  /* Components that declare their tokens inside their own shadow DOM have to
+   * be overridden on the element itself. */
+  :is(moz-page-nav, moz-page-nav-button) {
+    --page-nav-button-background-color-hover: transparent !important;
+    --page-nav-button-background-color-active: transparent !important;
+    --page-nav-button-background-color-selected: transparent !important;
+    --page-nav-button-indicator-background-color: transparent !important;
+    --page-nav-button-text-color: var(--custom-text) !important;
+    --page-nav-button-text-color-hover: var(--custom-text) !important;
+    --page-nav-button-text-color-selected: var(--custom-text-strong) !important;
+  }
+
+  /* A selected item in a page's navigation: text-darkest lh-bold. */
+  button[selected] {
+    font-weight: 500 !important;
+  }
+
+  moz-promo {
+    --promo-background-color: transparent !important;
+    --promo-background-color-vibrant: transparent !important;
+  }
+}
+
+/* The browser window. */
+@-moz-document url("chrome://browser/content/browser.xhtml")
+{
+  :root {
+    --toolbox-background-color: var(--custom-bg) !important;
+    --toolbox-background-color-inactive: var(--custom-bg) !important;
+    --toolbox-background-image: none !important;
+    --toolbox-background-gradient: none !important;
+    --toolbox-text-color: var(--custom-text-strong) !important;
+    --toolbox-text-color-inactive: var(--custom-text-strong) !important;
+    --toolbar-background-color: var(--custom-bg) !important;
+    --toolbar-text-color: var(--custom-text-strong) !important;
+    --chrome-content-separator-color: var(--custom-line) !important;
+
+    --toolbar-field-background-color: transparent !important;
+    --toolbar-field-background-color-focus: transparent !important;
+    --toolbar-field-border-color: var(--custom-line) !important;
+    --toolbar-field-border-color-focus: var(--custom-line) !important;
+    --toolbar-field-text-color: var(--custom-text) !important;
+    --toolbar-field-text-color-focus: var(--custom-text) !important;
+
+    --toolbarbutton-border-radius: var(--custom-radius) !important;
+    --toolbarbutton-icon-fill: var(--custom-text-strong) !important;
+    --toolbarbutton-icon-fill-attention: var(--custom-text-strong) !important;
+    --toolbarbutton-background-color-hover: transparent !important;
+    --toolbarbutton-background-color-active: transparent !important;
+
+    /* Tabs are buttons: lh-btn-secondary, and lh-btn-primary when selected. */
+    --tab-border-radius: var(--custom-radius) !important;
+    --tab-background-color: transparent !important;
+    --tab-background-color-hover: transparent !important;
+    --tab-background-color-selected: var(--custom-text-strong) !important;
+    --tab-border-color: var(--custom-line) !important;
+    --tab-border-color-hover: var(--custom-line) !important;
+    --tab-border-color-selected: transparent !important;
+    --tab-border-color-selected-leading: var(--custom-text-strong) !important;
+    --tab-border-color-selected-trailing: var(--custom-text-strong) !important;
+    --tab-border-color-accent: linear-gradient(var(--custom-text-strong), var(--custom-text-strong)) !important;
+    --tab-box-shadow-selected: none !important;
+    --tab-text-color: var(--custom-text-strong) !important;
+    --tab-text-color-hover: var(--custom-text-strong) !important;
+    --tab-text-color-selected: var(--custom-bg) !important;
+    --tab-icon-fill-loading: currentColor !important;
+  }
+
+  /* The address bar and the search bar declare these on themselves. */
+  :is(:root, .urlbar, #searchbar) {
+    --chrome-box-shadow: transparent !important;
+    --urlbar-border-radius: var(--custom-radius) !important;
+    --urlbar-background-border-radius: var(--custom-radius) !important;
+    --urlbar-background-color-focus: var(--custom-bg) !important;
+    --urlbar-background-border-open: 1px solid var(--custom-line) !important;
+    --urlbar-background-box-shadow-open: none !important;
+    --urlbar-background-overhang-open: 0px !important;
+    --urlbar-box-background-color: transparent !important;
+    --urlbar-box-background-color-hover: transparent !important;
+    --urlbar-box-background-color-active: transparent !important;
+    --urlbar-box-background-color-focus: transparent !important;
+
+    /* The address bar's suggestions are the site's command palette. */
+    --urlbarview-border-radius: var(--custom-radius) !important;
+    --urlbarview-background-color-hover: transparent !important;
+    --urlbarview-background-color-selected: transparent !important;
+    --urlbarview-action-button-background-color: transparent !important;
+    --urlbarview-action-button-background-color-hover: transparent !important;
+    --urlbarview-text-color-selected: var(--custom-text-strong) !important;
+    --urlbarview-text-color-secondary: var(--custom-text) !important;
+    --urlbarview-text-color-action: var(--custom-text) !important;
+    --urlbarview-separator-color: var(--custom-line) !important;
+  }
+
+  .tabbrowser-tab {
+    font-weight: 500 !important;
+
+    &[selected] .tab-close-button {
+      color: var(--custom-bg) !important;
+      fill: var(--custom-bg) !important;
+    }
+  }
+
+  /* lh-btn-square for the find bar's buttons. */
+  findbar toolbarbutton {
+    border: 1px solid var(--custom-line) !important;
+    border-radius: var(--custom-radius) !important;
+    background-color: transparent !important;
+  }
+
+  /* lh-btn-square for toolbar buttons. */
+  #navigator-toolbox .toolbarbutton-1 > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+    border: 1px solid var(--custom-line) !important;
+    background-color: transparent !important;
+  }
+
+  /* A button whose menu or panel is open, or that's switched on, is
+   * selected: lh-btn-primary. */
+  #navigator-toolbox .toolbarbutton-1:is([open], [checked]) {
+    --toolbarbutton-icon-fill: var(--custom-bg) !important;
+
+    > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+      border-color: transparent !important;
+      background-color: var(--custom-text-strong) !important;
+    }
+  }
+
+  /* The address bar is an lh-input, which fades like any other control. */
+  #urlbar:not([open], [focused]):hover {
+    opacity: 0.5 !important;
+  }
+
+  .urlbarView-row {
+    color: var(--custom-text) !important;
+
+    &[selected] {
+      color: var(--custom-text-strong) !important;
+      font-weight: 500 !important;
+    }
+  }
+
+  .urlbarView-row[label]::before {
+    color: var(--custom-text-muted) !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+  }
+}
