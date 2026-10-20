@@ -29,6 +29,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "moz-src:///browser/components/search/BrowserSearchTelemetry.sys.mjs",
   ContainerCreationPanel:
     "chrome://browser/content/usercontext/ContainerCreationPanel.mjs",
+  CustomGatekeeper: "moz-src:///browser/custom/CustomGatekeeper.sys.mjs",
   ExtensionUtils: "resource://gre/modules/ExtensionUtils.sys.mjs",
   Interactions: "moz-src:///browser/components/places/Interactions.sys.mjs",
   ProvidersManager:
@@ -1044,6 +1045,9 @@ export class UrlbarParentController {
         params,
         userTypedValue,
       });
+      if (!postData) {
+        url = lazy.CustomGatekeeper.gatedURL(url);
+      }
     }
 
     if (where == "current") {
