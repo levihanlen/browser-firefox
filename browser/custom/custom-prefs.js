@@ -24,8 +24,8 @@ pref("ui.textHighlightBackground", "#59585b");
 pref("ui.textHighlightForeground", "#ffffff");
 
 // Home and new tab
-pref("browser.startup.homepage", "https://www.levihanlen.com/search");
-pref("browser.custom.newTabURL", "https://www.levihanlen.com/search");
+pref("browser.startup.homepage", "https://www.levihanlen.com/home");
+pref("browser.custom.newTabURL", "https://www.levihanlen.com/home");
 
 // Search engine added and made the default once per profile by CustomStartup.
 pref("browser.custom.searchEngine.name", "levihanlen.com");
