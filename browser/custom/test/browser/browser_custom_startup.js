@@ -7,7 +7,8 @@ const { SearchService: TestSearchService } = ChromeUtils.importESModule(
   "moz-src:///toolkit/components/search/SearchService.sys.mjs"
 );
 
-const CUSTOM_URL = "https://www.levihanlen.com/search";
+const CUSTOM_URL = "https://www.levihanlen.com/home";
+const SEARCH_URL = "https://www.levihanlen.com/search";
 
 add_setup(async function () {
   await TestUtils.waitForCondition(
@@ -61,7 +62,7 @@ add_task(async function test_default_search_engine() {
   Assert.equal(engine.name, "levihanlen.com");
   Assert.equal(
     engine.getSubmission("hello world").uri.spec,
-    `${CUSTOM_URL}?q=hello+world`
+    `${SEARCH_URL}?q=hello+world`
   );
 });
 
