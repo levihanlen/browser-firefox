@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Gatekeeper</title>
+  </head>
+  <body>
+    <p>Stands in for levihanlen.com/gatekeeper, which passes the same way.</p>
+    <script>
+      let target = new URLSearchParams(location.search).get("url");
+      if (location.hash == "#pass" && target) {
+        window.location.href = target;
+      }
+    </script>
+  </body>
+</html>

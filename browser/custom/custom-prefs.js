@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global pref */
+/* global pref, sticky */
 
 // The prebuilt engine in artifact builds was compiled for Firefox and looks
 // for "Firefox GPU Helper" and "Firefox Media Plugin Helper", while this app
@@ -33,6 +33,24 @@ pref(
   "browser.custom.searchEngine.url",
   "https://www.levihanlen.com/search?q={searchTerms}"
 );
+
+// Sites typed or picked in the address bar open levihanlen.com/gatekeeper
+// first (CustomGatekeeper.sys.mjs).
+pref("browser.custom.gatekeeper.enabled", true);
+pref("browser.custom.gatekeeper.url", "https://www.levihanlen.com/gatekeeper");
+
+// Address bar: no recommendations. Firefox Suggest resets its own defaults by
+// region at startup, so CustomStartup also turns it off once per profile, and
+// sticky keeps that user value even while it matches this default.
+pref("browser.urlbar.quicksuggest.enabled", false, sticky);
+pref("browser.search.suggest.enabled", false);
+pref("browser.urlbar.suggest.searches", false);
+pref("browser.urlbar.suggest.trending", false);
+pref("browser.urlbar.trending.featureGate", false);
+pref("browser.urlbar.suggest.recentsearches", false);
+pref("browser.urlbar.suggest.topsites", false);
+pref("browser.urlbar.suggest.history", false);
+pref("browser.urlbar.autoFill", false);
 
 // Tabs
 pref("browser.tabs.closeWindowWithLastTab", false);

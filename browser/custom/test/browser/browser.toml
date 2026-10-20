@@ -1,6 +1,12 @@
 [DEFAULT]
+support-files = [
+  "file_gatekeeper.html",
+  "file_search_page.html",
+]
 
 ["browser_custom_branding.js"]
+
+["browser_custom_gatekeeper.js"]
 
 ["browser_custom_startup.js"]
 
