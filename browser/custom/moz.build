@@ -15,6 +15,7 @@ MOZ_SRC_FILES += [
     "CustomStartup.sys.mjs",
     "CustomTheme.sys.mjs",
     "CustomUpdate.sys.mjs",
+    "SiteTimer.sys.mjs",
     "TabNumberHints.sys.mjs",
 ]
 

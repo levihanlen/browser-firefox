@@ -3,6 +3,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 browser.jar:
+    content/browser/custom/site-timer.css (content/site-timer.css)
+    content/browser/custom/site-timer.html (content/site-timer.html)
+    content/browser/custom/site-timer.mjs (content/site-timer.mjs)
     content/browser/custom/tab-number-hints.css (content/tab-number-hints.css)
     content/browser/custom/theme.css (content/theme.css)
     content/browser/custom/fonts/eb-garamond-latin.woff2 (content/fonts/eb-garamond-latin.woff2)
