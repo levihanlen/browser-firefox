@@ -1,0 +1,42 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; object-src 'none';"
+    />
+    <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://browser/content/custom/site-timer.css"
+    />
+    <script
+      type="module"
+      src="chrome://browser/content/custom/site-timer.mjs"
+    ></script>
+    <title>Site timer</title>
+  </head>
+  <body>
+    <form id="site-timer">
+      <h1 id="heading"></h1>
+      <p id="summary" hidden></p>
+      <label id="purpose-field">
+        What are you here to do?
+        <input id="purpose" type="text" maxlength="200" autocomplete="off" />
+      </label>
+      <label>
+        <span id="minutes-label"></span>
+        <input id="minutes" type="number" min="1" max="600" step="1" required />
+      </label>
+      <div class="buttons">
+        <button id="close-tab" type="button">Close tab</button>
+        <button id="submit" class="primary" type="submit" disabled></button>
+      </div>
+    </form>
+  </body>
+</html>

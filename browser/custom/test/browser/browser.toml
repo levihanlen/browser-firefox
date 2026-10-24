@@ -2,11 +2,15 @@
 support-files = [
   "file_gatekeeper.html",
   "file_search_page.html",
+  "file_site_timer.html",
+  "../../../../dom/media/test/gizmo.mp4",
 ]
 
 ["browser_custom_branding.js"]
 
 ["browser_custom_gatekeeper.js"]
+
+["browser_custom_site_timer.js"]
 
 ["browser_custom_startup.js"]
 

@@ -39,6 +39,15 @@ pref(
 pref("browser.custom.gatekeeper.enabled", true);
 pref("browser.custom.gatekeeper.url", "https://www.levihanlen.com/gatekeeper");
 
+// Sites that ask how many minutes they'll take, and interrupt when the time is
+// up (SiteTimer.sys.mjs). Registrable domains, so youtube.com covers
+// www.youtube.com and music.youtube.com.
+pref("browser.custom.siteTimer.enabled", true);
+pref(
+  "browser.custom.siteTimer.sites",
+  "youtube.com,spotify.com,reddit.com,x.com,twitter.com,instagram.com,facebook.com,tiktok.com,netflix.com,twitch.tv"
+);
+
 // Address bar: no recommendations. Firefox Suggest resets its own defaults by
 // region at startup, so CustomStartup also turns it off once per profile, and
 // sticky keeps that user value even while it matches this default.
