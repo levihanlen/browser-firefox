@@ -124,6 +124,7 @@ add_task(async function test_asks_how_long() {
     Assert.ok(prompt.get("summary").hidden);
     Assert.ok(!prompt.get("purpose-field").hidden);
     Assert.equal(prompt.get("submit").textContent, "Start");
+    Assert.ok(prompt.get("submit").classList.contains("primary"));
     Assert.ok(prompt.get("submit").disabled, "Needs minutes");
 
     for (let invalid of ["0", "-3", "2.5", "601"]) {
@@ -239,6 +240,56 @@ add_task(async function test_close_tab_when_time_is_up() {
     );
   });
   resetSessions();
+});
+
+add_task(async function test_closing_the_tab_is_the_default_when_time_is_up() {
+  for (let [description, dismiss] of [
+    [
+      "Enter",
+      prompt => EventUtils.synthesizeKey("KEY_Enter", {}, prompt.window),
+    ],
+    [
+      "Enter with minutes entered",
+      prompt => {
+        prompt.get("minutes").focus();
+        enterMinutes(prompt, 10);
+        EventUtils.synthesizeKey("KEY_Enter", {}, prompt.window);
+      },
+    ],
+    [
+      "Escape",
+      prompt => EventUtils.synthesizeKey("KEY_Escape", {}, prompt.window),
+    ],
+  ]) {
+    SiteTimer.start(SITE, 5);
+    let tab = await BrowserTestUtils.openNewForegroundTab(gBrowser, TIMED_URL);
+    SiteTimer.timeUp(SITE);
+    let prompt = await waitForPrompt(tab.linkedBrowser);
+    let closeTab = prompt.get("close-tab");
+    let keepGoing = prompt.get("submit");
+    Assert.ok(closeTab.classList.contains("primary"), "Close tab is primary");
+    Assert.ok(!keepGoing.classList.contains("primary"), "Keep going isn't");
+    Assert.equal(
+      closeTab.parentNode.lastElementChild,
+      closeTab,
+      "Close tab is in the primary spot"
+    );
+    Assert.equal(prompt.get("minutes").value, "", "No minutes are filled in");
+    Assert.ok(keepGoing.disabled, "Keep going needs minutes");
+    await TestUtils.waitForCondition(
+      () => prompt.document.activeElement == closeTab,
+      "Close tab has focus"
+    );
+
+    let closing = BrowserTestUtils.waitForTabClosing(tab);
+    dismiss(prompt);
+    await closing;
+    await prompt.closed;
+    Assert.ok(
+      !SiteTimer._sessions.has(SITE),
+      `${description} closes the tab without giving more time`
+    );
+  }
 });
 
 add_task(async function test_time_up_with_no_tab_open() {
