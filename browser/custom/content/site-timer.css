@@ -2,19 +2,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+html,
 body {
-  width: 26em;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
 }
 
-form {
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxlarge);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 32em;
+  padding: var(--space-xlarge);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+section {
   display: flex;
   flex-direction: column;
   gap: var(--space-large);
-  padding: var(--space-xlarge);
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 h1 {
+  margin: 0;
+  font-size: var(--font-size-heading-xlarge);
+}
+
+h2 {
   margin: 0;
   font-size: var(--font-size-heading-large);
 }
@@ -23,14 +52,15 @@ p {
   margin: 0;
 }
 
+#countdown {
+  font-size: calc(2 * var(--font-size-xxxlarge));
+  font-variant-numeric: tabular-nums;
+}
+
 label {
   display: flex;
   flex-direction: column;
   gap: var(--space-small);
-
-  &[hidden] {
-    display: none;
-  }
 }
 
 input {
@@ -39,10 +69,15 @@ input {
 
 .buttons {
   display: flex;
-  justify-content: flex-end;
   gap: var(--space-small);
 
   > button {
     margin: 0;
   }
+}
+
+#close-tab {
+  margin: 0;
+  padding-block: var(--space-medium);
+  font-size: var(--font-size-large);
 }

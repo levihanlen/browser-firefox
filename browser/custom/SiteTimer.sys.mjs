@@ -12,7 +12,26 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 const ENABLED_PREF = "browser.custom.siteTimer.enabled";
 const SITES_PREF = "browser.custom.siteTimer.sites";
+const WAIT_PREF = "browser.custom.siteTimer.waitSeconds";
 const DIALOG_URL = "chrome://browser/content/custom/site-timer.html";
+
+/**
+ * Asked after the wait, one at a time. `pass` is the answer that lets the
+ * site through. The same questions as the Gatekeeper page on levihanlen.com,
+ * which timed sites skip.
+ *
+ * @type {Array<{text: string, pass: "Yes" | "No"}>}
+ */
+export const GATEKEEPER_QUESTIONS = [
+  { text: "Is this for pleasure?", pass: "No" },
+  { text: "Is this productive?", pass: "Yes" },
+  { text: "Is this a distraction?", pass: "No" },
+  { text: "Will this help you grow?", pass: "Yes" },
+  { text: "Are you just killing time?", pass: "No" },
+  { text: "Is this essential?", pass: "Yes" },
+  { text: "Will this matter in a week?", pass: "Yes" },
+  { text: "Would future-you consider this time well spent?", pass: "Yes" },
+];
 
 /**
  * The timed site `uri` is on: its registrable domain, when that's listed in
@@ -40,15 +59,17 @@ export function timedSiteFor(uri) {
 }
 
 /**
- * Before a timed site such as YouTube can be used, asks how many minutes it
- * will take, and when they're up, interrupts it wherever it's open: the video
- * pauses and a prompt covers the page, which stays loaded underneath, until
- * more minutes are given or the tab is closed. One timer covers every tab on
- * the same site.
+ * Locks a timed site such as YouTube until it's been waited out and a
+ * Gatekeeper question answered, then asks what it's for and how many minutes
+ * it will take. When they're up, it locks again wherever the site is open, and
+ * the whole wait starts over: there's no way to just add minutes. While
+ * locked, a prompt covers the whole tab and keeps media paused, with the page
+ * still loaded underneath, until it's unlocked or the tab is closed. One timer
+ * covers every tab on the same site.
  */
 export const SiteTimer = {
   /**
-   * @type {Map<string, {plannedMinutes: number, purpose: string, deadline: number, timer: ?number}>}
+   * @type {Map<string, {minutes: number, purpose: string, deadline: number, timer: ?number}>}
    *   Timed sites that were given minutes, by site. `timer` is null once the
    *   time is up.
    */
@@ -114,22 +135,18 @@ export const SiteTimer = {
   },
 
   /**
-   * Gives `site` `minutes` more minutes, starting now, and closes its prompts.
+   * Gives `site` `minutes` minutes, starting now, and closes its prompts.
    *
    * @param {string} site
    * @param {number} minutes
    * @param {string} [purpose]
-   *   What the time is for, in the user's words. Kept from the last time when
-   *   not given.
+   *   What the time is for, in the user's words.
    */
-  start(site, minutes, purpose) {
-    let previous = this._sessions.get(site);
-    if (previous) {
-      lazy.clearTimeout(previous.timer);
-    }
+  start(site, minutes, purpose = "") {
+    lazy.clearTimeout(this._sessions.get(site)?.timer);
     let session = {
-      plannedMinutes: (previous?.plannedMinutes ?? 0) + minutes,
-      purpose: purpose || previous?.purpose || "",
+      minutes,
+      purpose,
       deadline: Date.now() + minutes * 60 * 1000,
       timer: null,
     };
@@ -190,8 +207,8 @@ export const SiteTimer = {
   },
 
   /**
-   * Covers `browser` with the site timer prompt: how long, for a site with no
-   * time yet, or how much longer, once its time is up.
+   * Locks `browser` with the site timer prompt, which says what the last time
+   * was for when it's up.
    *
    * @param {MozBrowser} browser
    * @param {string} site
@@ -201,11 +218,17 @@ export const SiteTimer = {
     let args = {
       site,
       timeUp: !!session,
-      plannedMinutes: session?.plannedMinutes ?? 0,
-      purpose: session?.purpose ?? "",
+      lastMinutes: session?.minutes ?? 0,
+      lastPurpose: session?.purpose ?? "",
+      waitSeconds: Services.prefs.getIntPref(WAIT_PREF, 120),
+      questions: GATEKEEPER_QUESTIONS,
+      isWatched: () =>
+        !browser.ownerDocument.hidden &&
+        !!browser.getTabBrowser()?.selectedBrowsers.includes(browser),
       // Set by the prompt. It only sets primitives, which still read the same
       // once its window is gone.
       minutes: 0,
+      purpose: "",
       closeTab: false,
     };
     let { closedPromise, dialog } = browser
@@ -213,7 +236,12 @@ export const SiteTimer = {
       .getTabDialogBox(browser)
       .open(
         DIALOG_URL,
-        { features: "resizable=no", keepOpenSameOriginNav: true },
+        {
+          features: "resizable=no",
+          keepOpenSameOriginNav: true,
+          sizeTo: "available",
+          hideContent: true,
+        },
         args
       );
     let releaseMedia = this._holdMedia(browser);

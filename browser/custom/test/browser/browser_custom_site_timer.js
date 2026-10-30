@@ -5,9 +5,8 @@
 
 /* eslint-disable sdl/no-insecure-url */
 
-const { SiteTimer, timedSiteFor } = ChromeUtils.importESModule(
-  "moz-src:///browser/custom/SiteTimer.sys.mjs"
-);
+const { GATEKEEPER_QUESTIONS, SiteTimer, timedSiteFor } =
+  ChromeUtils.importESModule("moz-src:///browser/custom/SiteTimer.sys.mjs");
 
 const TEST_DIR = "browser/browser/custom/test/browser/";
 const SITE = "example.org";
@@ -47,12 +46,37 @@ function enterMinutes(prompt, minutes) {
   input.dispatchEvent(new prompt.window.Event("input"));
 }
 
-async function answer(prompt, minutes, purpose) {
+/**
+ * Answers the Gatekeeper question once the wait is over.
+ *
+ * @param {object} prompt
+ * @param {boolean} pass
+ *   Whether to give the answer that lets the site through.
+ */
+async function answerQuestion(prompt, pass) {
+  await TestUtils.waitForCondition(
+    () => !prompt.get("question-step").hidden,
+    "Waiting for the question"
+  );
+  let text = prompt.get("question").textContent;
+  let question = GATEKEEPER_QUESTIONS.find(q => q.text == text);
+  Assert.ok(question, `“${text}” is a Gatekeeper question`);
+  let buttons = [...prompt.get("answers").children];
+  Assert.deepEqual(
+    buttons.map(b => b.textContent).sort(),
+    ["No", "Yes"],
+    "Yes and No are the answers"
+  );
+  buttons.find(b => (b.textContent == question.pass) == pass).click();
+}
+
+async function unlock(prompt, minutes, purpose) {
+  await answerQuestion(prompt, true);
   if (purpose) {
     prompt.get("purpose").value = purpose;
   }
   enterMinutes(prompt, minutes);
-  prompt.get("submit").click();
+  prompt.get("start").click();
   await prompt.closed;
 }
 
@@ -65,7 +89,10 @@ function resetSessions() {
 
 add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
-    set: [["browser.custom.siteTimer.sites", SITE]],
+    set: [
+      ["browser.custom.siteTimer.sites", SITE],
+      ["browser.custom.siteTimer.waitSeconds", 0],
+    ],
   });
   registerCleanupFunction(resetSessions);
 });
@@ -73,6 +100,10 @@ add_setup(async function () {
 add_task(function test_default_prefs() {
   let defaults = Services.prefs.getDefaultBranch("");
   Assert.ok(defaults.getBoolPref("browser.custom.siteTimer.enabled"));
+  Assert.equal(
+    defaults.getIntPref("browser.custom.siteTimer.waitSeconds"),
+    120
+  );
   let sites = defaults.getStringPref("browser.custom.siteTimer.sites");
   for (let site of ["youtube.com", "spotify.com", "reddit.com"]) {
     Assert.ok(sites.split(",").includes(site), `${site} is timed`);
@@ -117,29 +148,43 @@ add_task(async function test_disabled() {
   await SpecialPowers.popPrefEnv();
 });
 
-add_task(async function test_asks_how_long() {
+add_task(async function test_locks_until_answered() {
   await BrowserTestUtils.withNewTab(TIMED_URL, async browser => {
     let prompt = await waitForPrompt(browser);
     Assert.equal(prompt.get("heading").textContent, SITE);
     Assert.ok(prompt.get("summary").hidden);
-    Assert.ok(!prompt.get("purpose-field").hidden);
-    Assert.equal(prompt.get("submit").textContent, "Start");
-    Assert.ok(prompt.get("submit").classList.contains("primary"));
-    Assert.ok(prompt.get("submit").disabled, "Needs minutes");
-
-    for (let invalid of ["0", "-3", "2.5", "601"]) {
-      enterMinutes(prompt, invalid);
-      Assert.ok(prompt.get("submit").disabled, `${invalid} isn't accepted`);
-    }
+    Assert.ok(prompt.get("close-tab").classList.contains("primary"));
+    Assert.ok(
+      prompt.get("plan-step").hidden,
+      "Minutes aren't asked before the question"
+    );
 
     EventUtils.synthesizeKey("KEY_Escape", {}, prompt.window);
     await TestUtils.waitForTick();
     Assert.ok(!prompt.dialog._isClosing, "Escape doesn't dismiss the prompt");
 
+    await answerQuestion(prompt, true);
+    Assert.ok(prompt.get("question-step").hidden);
+    Assert.ok(!prompt.get("plan-step").hidden);
+    Assert.equal(prompt.document.activeElement, prompt.get("purpose"));
+    Assert.ok(prompt.get("start").disabled, "Needs minutes");
+    for (let invalid of ["0", "-3", "2.5", "601"]) {
+      enterMinutes(prompt, invalid);
+      Assert.ok(prompt.get("start").disabled, `${invalid} isn't accepted`);
+    }
+
     let before = Date.now();
-    await answer(prompt, 5, "  learn a chord ");
+    prompt.get("purpose").value = "  learn a chord ";
+    prompt.get("minutes").focus();
+    enterMinutes(prompt, 5);
+    Assert.ok(!prompt.get("start").disabled);
+    EventUtils.synthesizeKey("KEY_Enter", {}, prompt.window);
+    await TestUtils.waitForTick();
+    Assert.ok(!prompt.dialog._isClosing, "Enter doesn't start");
+    prompt.get("start").click();
+    await prompt.closed;
     let session = SiteTimer._sessions.get(SITE);
-    Assert.equal(session.plannedMinutes, 5);
+    Assert.equal(session.minutes, 5);
     Assert.equal(session.purpose, "learn a chord");
     Assert.greaterOrEqual(session.deadline, before + 5 * 60 * 1000);
     Assert.lessOrEqual(session.deadline, Date.now() + 5 * 60 * 1000);
@@ -154,6 +199,77 @@ add_task(async function test_asks_how_long() {
   resetSessions();
 });
 
+add_task(async function test_covers_the_whole_tab() {
+  await BrowserTestUtils.withNewTab(TIMED_URL, async browser => {
+    let prompt = await waitForPrompt(browser);
+    let { _box: box, _overlay: overlay } = prompt.dialog;
+    Assert.equal(
+      overlay.getAttribute("hideContent"),
+      "true",
+      "The page doesn't show around the prompt"
+    );
+    await TestUtils.waitForCondition(() => {
+      let boxRect = box.getBoundingClientRect();
+      let overlayRect = overlay.getBoundingClientRect();
+      return (
+        Math.abs(boxRect.width - overlayRect.width) < 1 &&
+        Math.abs(boxRect.height - overlayRect.height) < 10
+      );
+    }, "The prompt fills the tab");
+    prompt.dialog.abort();
+    await prompt.closed;
+  });
+  resetSessions();
+});
+
+add_task(async function test_waits_before_asking() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.custom.siteTimer.waitSeconds", 1]],
+  });
+  await BrowserTestUtils.withNewTab(TIMED_URL, async browser => {
+    let prompt = await waitForPrompt(browser);
+    Assert.ok(!prompt.get("wait-step").hidden);
+    Assert.ok(prompt.get("question-step").hidden);
+    Assert.equal(prompt.get("wait-message").textContent, "Wait 1 second.");
+    Assert.equal(prompt.get("countdown").textContent, "0:01");
+
+    await answerQuestion(prompt, false);
+    Assert.ok(!prompt.dialog._isClosing, "A wrong answer keeps the tab");
+    Assert.ok(!prompt.get("wait-step").hidden, "and waits again");
+    Assert.ok(prompt.get("question-step").hidden);
+    Assert.equal(prompt.get("wait-message").textContent, "Wait 1 second more.");
+
+    await unlock(prompt, 5);
+    Assert.equal(SiteTimer._sessions.get(SITE).minutes, 5);
+  });
+  resetSessions();
+  await SpecialPowers.popPrefEnv();
+});
+
+add_task(async function test_wait_counts_only_while_watched() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.custom.siteTimer.waitSeconds", 60]],
+  });
+  let tab = await BrowserTestUtils.openNewForegroundTab(gBrowser, TIMED_URL);
+  let prompt = await waitForPrompt(tab.linkedBrowser);
+  let [args] = prompt.window.arguments;
+  Assert.ok(args.isWatched(), "Counts while the tab is selected");
+
+  let other = await BrowserTestUtils.openNewForegroundTab(
+    gBrowser,
+    "about:blank"
+  );
+  Assert.ok(!args.isWatched(), "Not while another tab is");
+  await BrowserTestUtils.switchTab(gBrowser, tab);
+  Assert.ok(args.isWatched());
+
+  BrowserTestUtils.removeTab(other);
+  BrowserTestUtils.removeTab(tab);
+  await prompt.closed;
+  resetSessions();
+  await SpecialPowers.popPrefEnv();
+});
+
 add_task(async function test_close_tab_before_starting() {
   let tab = await BrowserTestUtils.openNewForegroundTab(gBrowser, TIMED_URL);
   let prompt = await waitForPrompt(tab.linkedBrowser);
@@ -164,7 +280,7 @@ add_task(async function test_close_tab_before_starting() {
   Assert.ok(!SiteTimer._sessions.has(SITE));
 });
 
-add_task(async function test_time_up_interrupts_every_tab_on_the_site() {
+add_task(async function test_time_up_locks_every_tab_on_the_site() {
   SiteTimer.start(SITE, 5, "learn a chord");
   let first = await BrowserTestUtils.openNewForegroundTab(gBrowser, TIMED_URL);
   let second = await BrowserTestUtils.openNewForegroundTab(
@@ -189,22 +305,25 @@ add_task(async function test_time_up_interrupts_every_tab_on_the_site() {
     firstPrompt.get("summary").textContent,
     "You gave yourself 5 minutes for “learn a chord”."
   );
-  Assert.ok(firstPrompt.get("purpose-field").hidden);
-  Assert.equal(firstPrompt.get("submit").textContent, "Keep going");
+  Assert.ok(
+    firstPrompt.get("plan-step").hidden,
+    "More time takes the question again"
+  );
 
-  await answer(firstPrompt, 1);
+  await unlock(firstPrompt, 1, "practice scales");
   await secondPrompt.closed;
   await expectNoPrompt(second.linkedBrowser);
   let session = SiteTimer._sessions.get(SITE);
-  Assert.equal(session.plannedMinutes, 6);
-  Assert.equal(session.purpose, "learn a chord");
+  Assert.equal(session.minutes, 1);
+  Assert.equal(session.purpose, "practice scales");
 
   SiteTimer.timeUp(SITE);
   firstPrompt = await waitForPrompt(first.linkedBrowser);
   Assert.equal(
     firstPrompt.get("summary").textContent,
-    "You gave yourself 6 minutes for “learn a chord”."
+    "You gave yourself 1 minute for “practice scales”."
   );
+  Assert.equal(firstPrompt.get("purpose").value, "", "The purpose is new");
 
   for (let tab of [first, second, untimed]) {
     BrowserTestUtils.removeTab(tab);
@@ -242,54 +361,32 @@ add_task(async function test_close_tab_when_time_is_up() {
   resetSessions();
 });
 
-add_task(async function test_closing_the_tab_is_the_default_when_time_is_up() {
-  for (let [description, dismiss] of [
-    [
-      "Enter",
-      prompt => EventUtils.synthesizeKey("KEY_Enter", {}, prompt.window),
-    ],
-    [
-      "Enter with minutes entered",
-      prompt => {
-        prompt.get("minutes").focus();
-        enterMinutes(prompt, 10);
-        EventUtils.synthesizeKey("KEY_Enter", {}, prompt.window);
-      },
-    ],
-    [
-      "Escape",
-      prompt => EventUtils.synthesizeKey("KEY_Escape", {}, prompt.window),
-    ],
-  ]) {
-    SiteTimer.start(SITE, 5);
-    let tab = await BrowserTestUtils.openNewForegroundTab(gBrowser, TIMED_URL);
-    SiteTimer.timeUp(SITE);
-    let prompt = await waitForPrompt(tab.linkedBrowser);
-    let closeTab = prompt.get("close-tab");
-    let keepGoing = prompt.get("submit");
-    Assert.ok(closeTab.classList.contains("primary"), "Close tab is primary");
-    Assert.ok(!keepGoing.classList.contains("primary"), "Keep going isn't");
-    Assert.equal(
-      closeTab.parentNode.lastElementChild,
-      closeTab,
-      "Close tab is in the primary spot"
-    );
-    Assert.equal(prompt.get("minutes").value, "", "No minutes are filled in");
-    Assert.ok(keepGoing.disabled, "Keep going needs minutes");
-    await TestUtils.waitForCondition(
-      () => prompt.document.activeElement == closeTab,
-      "Close tab has focus"
-    );
+add_task(async function test_stray_keys_keep_the_tab() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.custom.siteTimer.waitSeconds", 60]],
+  });
+  SiteTimer.start(SITE, 5);
+  let tab = await BrowserTestUtils.openNewForegroundTab(gBrowser, TIMED_URL);
+  SiteTimer.timeUp(SITE);
+  let prompt = await waitForPrompt(tab.linkedBrowser);
+  let closeTab = prompt.get("close-tab");
+  await TestUtils.waitForCondition(
+    () => prompt.document.activeElement == prompt.get("site-timer"),
+    "The prompt has focus"
+  );
+  Assert.notEqual(prompt.document.activeElement, closeTab);
 
-    let closing = BrowserTestUtils.waitForTabClosing(tab);
-    dismiss(prompt);
-    await closing;
-    await prompt.closed;
-    Assert.ok(
-      !SiteTimer._sessions.has(SITE),
-      `${description} closes the tab without giving more time`
-    );
+  for (let key of ["KEY_Enter", " ", "KEY_Escape"]) {
+    EventUtils.synthesizeKey(key, {}, prompt.window);
   }
+  await TestUtils.waitForTick();
+  Assert.ok(!prompt.dialog._isClosing, "The prompt is still up");
+  Assert.ok(!tab.closing, "The tab is still open");
+
+  BrowserTestUtils.removeTab(tab);
+  await prompt.closed;
+  resetSessions();
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_time_up_with_no_tab_open() {
@@ -370,7 +467,7 @@ add_task(async function test_media_pauses_until_answered() {
       "Media started under the prompt is paused too"
     );
 
-    await answer(prompt, 1);
+    await unlock(prompt, 1);
     await TestUtils.waitForCondition(
       () => controller.isPlaying,
       "Plays again once more time is given"

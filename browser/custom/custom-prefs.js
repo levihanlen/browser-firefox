@@ -35,14 +35,17 @@ pref(
 );
 
 // Sites typed or picked in the address bar open levihanlen.com/gatekeeper
-// first (CustomGatekeeper.sys.mjs).
+// first (CustomGatekeeper.sys.mjs), except the timed sites below, which lock
+// themselves instead.
 pref("browser.custom.gatekeeper.enabled", true);
 pref("browser.custom.gatekeeper.url", "https://www.levihanlen.com/gatekeeper");
 
-// Sites that ask how many minutes they'll take, and interrupt when the time is
-// up (SiteTimer.sys.mjs). Registrable domains, so youtube.com covers
+// Sites that lock until waited out and a Gatekeeper question is answered, ask
+// how many minutes they'll take, and lock again when the time is up
+// (SiteTimer.sys.mjs). Registrable domains, so youtube.com covers
 // www.youtube.com and music.youtube.com.
 pref("browser.custom.siteTimer.enabled", true);
+pref("browser.custom.siteTimer.waitSeconds", 120);
 pref(
   "browser.custom.siteTimer.sites",
   "youtube.com,spotify.com,reddit.com,x.com,twitter.com,instagram.com,facebook.com,tiktok.com,netflix.com,twitch.tv"
