@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  SiteTimer,
+  timedSiteFor,
+} from "moz-src:///browser/custom/SiteTimer.sys.mjs";
+
 const ENABLED_PREF = "browser.custom.gatekeeper.enabled";
 const URL_PREF = "browser.custom.gatekeeper.url";
 
@@ -28,7 +33,8 @@ export function isOwnHost(host) {
  * Sends sites typed or picked in the address bar through the Gatekeeper page
  * on levihanlen.com, which asks a question and then sets window.location to
  * the site. Only address bar loads come here, so links and the Gatekeeper's
- * own redirect load normally.
+ * own redirect load normally. Timed sites skip it, since SiteTimer locks them
+ * with its own wait and question.
  */
 export const CustomGatekeeper = {
   /**
@@ -36,7 +42,7 @@ export const CustomGatekeeper = {
    *   The URL the address bar is about to load.
    * @returns {string}
    *   The URL to load instead: the Gatekeeper page for `url`, or `url` itself
-   *   when it's one of Levi's own sites or not a web page.
+   *   when it's one of Levi's own sites, a timed site, or not a web page.
    */
   gatedURL(url) {
     let gatekeeper = Services.prefs.getStringPref(URL_PREF, "");
@@ -52,7 +58,7 @@ export const CustomGatekeeper = {
     if (!uri.schemeIs("http") && !uri.schemeIs("https")) {
       return url;
     }
-    if (isOwnHost(uri.host)) {
+    if (isOwnHost(uri.host) || (SiteTimer.enabled && timedSiteFor(uri))) {
       return url;
     }
     let gated = new URL(gatekeeper);

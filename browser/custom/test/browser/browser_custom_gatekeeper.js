@@ -42,8 +42,8 @@ add_task(function test_default_prefs() {
 
 add_task(function test_gated_url() {
   Assert.equal(
-    CustomGatekeeper.gatedURL("https://www.youtube.com/watch?v=a&t=1"),
-    "https://www.levihanlen.com/gatekeeper?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Da%26t%3D1"
+    CustomGatekeeper.gatedURL("https://en.wikipedia.org/w/index.php?a=1&b=2"),
+    "https://www.levihanlen.com/gatekeeper?url=https%3A%2F%2Fen.wikipedia.org%2Fw%2Findex.php%3Fa%3D1%26b%3D2"
   );
   Assert.equal(
     CustomGatekeeper.gatedURL("http://192.168.1.1/"),
@@ -57,6 +57,7 @@ add_task(function test_gated_url() {
     "http://app.localhost:3000/",
     "http://127.0.0.1:8000/",
     "http://[::1]:3000/",
+    "https://www.youtube.com/watch?v=a",
     "about:preferences",
     "file:///tmp/notes.txt",
     "not a url",
@@ -69,6 +70,20 @@ add_task(function test_gated_url() {
     ),
     "Lookalike hosts are gated"
   );
+});
+
+add_task(async function test_timed_sites_are_gated_without_the_site_timer() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.custom.siteTimer.enabled", false]],
+  });
+  Assert.equal(
+    CustomGatekeeper.gatedURL("https://www.youtube.com/"),
+    gatedURLFor(
+      "https://www.levihanlen.com/gatekeeper",
+      "https://www.youtube.com/"
+    )
+  );
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_gated_url_follows_prefs() {
