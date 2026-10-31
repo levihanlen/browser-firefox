@@ -4,7 +4,7 @@
 
 #aboutDialogContainer {
   background-color: rgb(17, 16, 20);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   color-scheme: dark;
 }
 
@@ -16,11 +16,11 @@
 
 #bottomBox {
   padding: 15px 10px;
-  border-top: 1px solid rgba(179, 179, 179, 0.2);
+  border-top: 1pt solid rgba(179, 179, 179, 0.25);
 }
 
 #trademark {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.6);
   font-size: xx-small;
   text-align: center;
   margin-block: 10px;

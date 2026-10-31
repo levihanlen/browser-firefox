@@ -2,20 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* The look of levihanlen.com, built from the utilities life-nextjs actually
- * uses rather than anything new:
+/* The look of levihanlen.com, built from the design system in life-nextjs's
+ * app/globals.css rather than anything new:
  *
- *   lh-btn-secondary / lh-btn-square  a button: hairline border, no fill
- *   lh-btn-primary                    a selected or toggled button: solid
- *                                     white with near-black text
- *   lh-interactive                    anything clickable fades to half
- *                                     strength under the pointer
- *   text-darkest lh-bold / text-dark  the active row in a list vs the rest
+ *   lh-btn-secondary / lh-btn-square  a button: a word or an icon, no border
+ *                                     and no fill
+ *   lh-btn-primary                    the one main action: solid white with
+ *                                     near-black text
+ *   lh-btn-row                        a row in a list or menu: bold, full
+ *                                     width, text on the left
+ *   lh-interactive                    anything clickable takes the light
+ *                                     shade under the pointer, instantly
+ *   lh-selectable                     the chosen one (selected tab, open
+ *                                     menu, current page) takes it too
+ *   lh-input                          no fill, a hairline border
  *   lh-float                          a floating box: page color, hairline
  *                                     border, no shadow
- *   Eyebrow                           a group title: tiny, spaced, uppercase
+ *   Eyebrow                           a group title: small, in the dark shade
  *
- * Nothing interactive ever gets a gray background.
+ * Corners are square, lines are 1pt, there are no shadows, and the weights
+ * are normal and lh-bold (500).
  *
  * Registered as a user sheet by CustomTheme.sys.mjs, so every rule is scoped
  * to Firefox's own documents and uses !important to win over the theme
@@ -24,6 +30,8 @@
 /* This file defines the palette the design tokens are mapped onto, so it can't
  * itself be written in terms of those tokens. */
 /* stylelint-disable stylelint-plugin-mozilla/use-design-tokens */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 /* EB Garamond, SIL Open Font License 1.1. */
 @font-face {
@@ -85,41 +93,45 @@
   url-prefix("about:rights"), url-prefix("about:license"),
   url-prefix("about:mozilla"), url-prefix("about:buildconfig") {
   :root {
-    /* lightest, darkest, dark, medium and light in life-nextjs. */
-    --custom-bg: rgb(17, 16, 20);
-    --custom-text-strong: rgba(255, 255, 255, 0.85);
-    --custom-text: rgba(255, 255, 255, 0.65);
-    --custom-text-muted: rgba(255, 255, 255, 0.3);
-    --custom-line: rgba(179, 179, 179, 0.2);
-    --custom-radius: 2px;
+    /* lightest, darkest, dark and light in life-nextjs. There is no medium:
+     * anything that was fainter than dark is dark now. */
+    --custom-lightest: rgb(17, 16, 20);
+    --custom-darkest: rgba(255, 255, 255, 0.9);
+    --custom-dark: rgba(255, 255, 255, 0.6);
+    --custom-light: rgba(179, 179, 179, 0.25);
+    --custom-line-width: 1pt;
     --custom-font: "Custom EB Garamond", Georgia, serif;
 
     color-scheme: dark !important;
     scrollbar-color: rgba(255, 255, 255, 0.21) transparent !important;
 
-    --background-color-canvas: var(--custom-bg) !important;
-    --background-color-box: var(--custom-bg) !important;
+    --background-color-canvas: var(--custom-lightest) !important;
+    --background-color-box: var(--custom-lightest) !important;
     --background-color-dimmed: transparent !important;
     --background-color-dimmed-further: transparent !important;
-    --text-color: var(--custom-text-strong) !important;
-    --text-color-deemphasized: var(--custom-text) !important;
-    --icon-color: var(--custom-text-strong) !important;
+    --text-color: var(--custom-darkest) !important;
+    --text-color-deemphasized: var(--custom-dark) !important;
+    --icon-color: var(--custom-darkest) !important;
 
-    --border-color: var(--custom-line) !important;
-    --border-color-deemphasized: var(--custom-line) !important;
-    --border-color-interactive: var(--custom-line) !important;
-    --border-color-interactive-hover: var(--custom-line) !important;
-    --border-color-interactive-active: var(--custom-line) !important;
-    --border-color-selected: var(--custom-text-strong) !important;
-    --border-width: 1px !important;
+    /* Two weights: normal and lh-bold. */
+    --font-weight-semibold: 500 !important;
+    --font-weight-bold: 500 !important;
 
-    --border-radius-xsmall: var(--custom-radius) !important;
-    --border-radius-small: var(--custom-radius) !important;
-    --border-radius-medium: var(--custom-radius) !important;
-    --border-radius-large: var(--custom-radius) !important;
-    --border-radius-xlarge: var(--custom-radius) !important;
-    --border-radius-circle: var(--custom-radius) !important;
-    --focus-outline-width: 1px !important;
+    --border-color: var(--custom-light) !important;
+    --border-color-deemphasized: var(--custom-light) !important;
+    --border-color-interactive: var(--custom-light) !important;
+    --border-color-interactive-hover: var(--custom-light) !important;
+    --border-color-interactive-active: var(--custom-light) !important;
+    --border-color-selected: var(--custom-darkest) !important;
+    --border-width: var(--custom-line-width) !important;
+
+    --border-radius-xsmall: 0 !important;
+    --border-radius-small: 0 !important;
+    --border-radius-medium: 0 !important;
+    --border-radius-large: 0 !important;
+    --border-radius-xlarge: 0 !important;
+    --border-radius-circle: 0 !important;
+    --focus-outline-width: var(--custom-line-width) !important;
 
     --box-shadow-level-1: none !important;
     --box-shadow-level-2: none !important;
@@ -127,13 +139,13 @@
     --box-shadow-level-4: none !important;
 
     /* The site has no accent color. Its emphasis is the strongest white, and
-     * anything selected is that white with near-black on it. */
-    --color-accent-primary: var(--custom-text-strong) !important;
-    --color-accent-primary-hover: var(--custom-text-strong) !important;
-    --color-accent-primary-active: var(--custom-text-strong) !important;
-    --color-accent-primary-selected: var(--custom-text-strong) !important;
-    --text-color-accent-primary-selected: var(--custom-bg) !important;
-    --focus-outline-color: var(--custom-text) !important;
+     * a selected row in a list is lh-selected: the light shade behind it. */
+    --color-accent-primary: var(--custom-darkest) !important;
+    --color-accent-primary-hover: var(--custom-darkest) !important;
+    --color-accent-primary-active: var(--custom-darkest) !important;
+    --color-accent-primary-selected: var(--custom-light) !important;
+    --text-color-accent-primary-selected: var(--custom-darkest) !important;
+    --focus-outline-color: var(--custom-dark) !important;
 
     /* The site's tinted boxes: its accent colors at 20%. */
     --background-color-information: oklch(80% 0.25 260 / 0.2) !important;
@@ -141,90 +153,115 @@
     --background-color-warning: oklch(80% 0.25 90 / 0.2) !important;
     --background-color-critical: oklch(80% 0.25 25 / 0.2) !important;
 
-    --link-color: var(--custom-text-strong) !important;
-    --link-color-hover: var(--custom-text-strong) !important;
-    --link-color-active: var(--custom-text-strong) !important;
+    /* lh-link: underlined in the strongest white. */
+    --link-color: var(--custom-darkest) !important;
+    --link-color-hover: var(--custom-darkest) !important;
+    --link-color-active: var(--custom-darkest) !important;
 
-    /* lh-btn-secondary for every kind of button. */
-    --button-border-radius: var(--custom-radius) !important;
+    /* lh-btn-secondary for every kind of button: no border, no fill, and the
+     * light shade under the pointer or when selected. */
+    --button-border-radius: 0 !important;
     --button-font-weight: 500 !important;
+    --button-opacity-disabled: 0.5 !important;
+    --button-padding-inline: var(--space-small) !important;
+    --button-padding-inline-small: var(--space-small) !important;
+    --button-padding-inline-large: var(--space-small) !important;
     --button-background-color: transparent !important;
-    --button-background-color-hover: transparent !important;
-    --button-background-color-active: transparent !important;
+    --button-background-color-hover: var(--custom-light) !important;
+    --button-background-color-active: var(--custom-light) !important;
     --button-background-color-ghost: transparent !important;
-    --button-background-color-ghost-hover: transparent !important;
-    --button-background-color-ghost-active: transparent !important;
+    --button-background-color-ghost-hover: var(--custom-light) !important;
+    --button-background-color-ghost-active: var(--custom-light) !important;
     --button-background-color-menu: transparent !important;
-    --button-background-color-menu-hover: transparent !important;
-    --button-background-color-menu-active: transparent !important;
+    --button-background-color-menu-hover: var(--custom-light) !important;
+    --button-background-color-menu-active: var(--custom-light) !important;
     --button-background-color-toolbar: transparent !important;
-    --button-background-color-toolbar-hover: transparent !important;
-    --button-background-color-toolbar-active: transparent !important;
-    --button-border-color: var(--custom-line) !important;
-    --button-border-color-hover: var(--custom-line) !important;
-    --button-border-color-active: var(--custom-line) !important;
-    --button-border-color-ghost: var(--custom-line) !important;
-    --button-border-color-ghost-hover: var(--custom-line) !important;
-    --button-border-color-ghost-active: var(--custom-line) !important;
-    --button-border-color-menu: var(--custom-line) !important;
-    --button-border-color-menu-hover: var(--custom-line) !important;
-    --button-border-color-menu-active: var(--custom-line) !important;
-    --button-border-color-toolbar: var(--custom-line) !important;
-    --button-border-color-toolbar-hover: var(--custom-line) !important;
-    --button-border-color-toolbar-active: var(--custom-line) !important;
-    --button-text-color: var(--custom-text-strong) !important;
-    --button-text-color-hover: var(--custom-text-strong) !important;
-    --button-text-color-active: var(--custom-text-strong) !important;
-    --button-text-color-ghost: var(--custom-text-strong) !important;
-    --button-text-color-ghost-hover: var(--custom-text-strong) !important;
-    --button-text-color-ghost-active: var(--custom-text-strong) !important;
+    --button-background-color-toolbar-hover: var(--custom-light) !important;
+    --button-background-color-toolbar-active: var(--custom-light) !important;
+    --button-background-color-muted: transparent !important;
+    --button-background-color-muted-hover: var(--custom-light) !important;
+    --button-background-color-muted-active: var(--custom-light) !important;
+    --button-background-color-muted-selected: var(--custom-light) !important;
+    --button-border-color-muted: transparent !important;
+    --button-border-color-muted-hover: transparent !important;
+    --button-border-color-muted-active: transparent !important;
+    --button-border-color-muted-selected: transparent !important;
+    --button-text-color-muted: var(--custom-darkest) !important;
+    --button-text-color-muted-hover: var(--custom-darkest) !important;
+    --button-text-color-muted-active: var(--custom-darkest) !important;
+    --button-text-color-muted-selected: var(--custom-darkest) !important;
+    --button-border-color: transparent !important;
+    --button-border-color-hover: transparent !important;
+    --button-border-color-active: transparent !important;
+    --button-border-color-ghost: transparent !important;
+    --button-border-color-ghost-hover: transparent !important;
+    --button-border-color-ghost-active: transparent !important;
+    --button-border-color-menu: transparent !important;
+    --button-border-color-menu-hover: transparent !important;
+    --button-border-color-menu-active: transparent !important;
+    --button-border-color-toolbar: transparent !important;
+    --button-border-color-toolbar-hover: transparent !important;
+    --button-border-color-toolbar-active: transparent !important;
+    --button-text-color: var(--custom-darkest) !important;
+    --button-text-color-hover: var(--custom-darkest) !important;
+    --button-text-color-active: var(--custom-darkest) !important;
+    --button-text-color-ghost: var(--custom-darkest) !important;
+    --button-text-color-ghost-hover: var(--custom-darkest) !important;
+    --button-text-color-ghost-active: var(--custom-darkest) !important;
+    --button-text-color-menu: var(--custom-darkest) !important;
+    --button-text-color-menu-hover: var(--custom-darkest) !important;
+    --button-text-color-menu-active: var(--custom-darkest) !important;
 
-    /* lh-btn-primary, which is also how a selected or toggled button looks.
-     * It has no border: one in the same translucent white would be painted
-     * over the fill and show as a brighter ring. */
-    --button-background-color-primary: var(--custom-text-strong) !important;
-    --button-background-color-primary-hover: var(--custom-text-strong) !important;
-    --button-background-color-primary-active: var(--custom-text-strong) !important;
+    /* lh-btn-primary. Under the pointer it is any other button, as on the
+     * site. */
+    --button-background-color-primary: var(--custom-darkest) !important;
+    --button-background-color-primary-hover: var(--custom-light) !important;
+    --button-background-color-primary-active: var(--custom-light) !important;
     --button-border-color-primary: transparent !important;
-    --button-text-color-primary: var(--custom-bg) !important;
-    --button-text-color-primary-hover: var(--custom-bg) !important;
-    --button-text-color-primary-active: var(--custom-bg) !important;
-    --button-background-color-selected: var(--custom-text-strong) !important;
-    --button-background-color-ghost-selected: var(--custom-text-strong) !important;
-    --button-background-color-menu-selected: transparent !important;
+    --button-border-color-primary-hover: transparent !important;
+    --button-border-color-primary-active: transparent !important;
+    --button-text-color-primary: var(--custom-lightest) !important;
+    --button-text-color-primary-hover: var(--custom-darkest) !important;
+    --button-text-color-primary-active: var(--custom-darkest) !important;
+
+    /* lh-selected */
+    --button-background-color-selected: var(--custom-light) !important;
+    --button-background-color-ghost-selected: var(--custom-light) !important;
+    --button-background-color-menu-selected: var(--custom-light) !important;
     --button-border-color-selected: transparent !important;
     --button-border-color-ghost-selected: transparent !important;
-    --button-text-color-selected: var(--custom-bg) !important;
-    --button-text-color-ghost-selected: var(--custom-bg) !important;
-    --button-text-color-menu-selected: var(--custom-text-strong) !important;
+    --button-border-color-menu-selected: transparent !important;
+    --button-text-color-selected: var(--custom-darkest) !important;
+    --button-text-color-ghost-selected: var(--custom-darkest) !important;
+    --button-text-color-menu-selected: var(--custom-darkest) !important;
 
     /* lh-float */
-    --card-background-color: var(--custom-bg) !important;
-    --card-border-color: var(--custom-line) !important;
+    --card-background-color: var(--custom-lightest) !important;
+    --card-border-color: var(--custom-light) !important;
     --card-box-shadow: none !important;
     --card-box-shadow-hover: none !important;
-    --popup-background-color: var(--custom-bg) !important;
-    --popup-border-color: var(--custom-line) !important;
+    --popup-background-color: var(--custom-lightest) !important;
+    --popup-border-color: var(--custom-light) !important;
     --popup-box-shadow: none !important;
-    --panel-background-color: var(--custom-bg) !important;
-    --panel-border-color: var(--custom-line) !important;
-    --panel-text-color: var(--custom-text-strong) !important;
+    --panel-background-color: var(--custom-lightest) !important;
+    --panel-border-color: var(--custom-light) !important;
+    --panel-text-color: var(--custom-darkest) !important;
 
-    /* lh-input: no fill, hairline border, text-dark, placeholder in medium. */
+    /* lh-input: no fill, hairline border, text-darkest, placeholder in dark. */
     --input-text-background-color: transparent !important;
-    --input-text-border-color: var(--custom-line) !important;
-    --input-border-color: var(--custom-line) !important;
-    --input-text-color: var(--custom-text) !important;
+    --input-text-border-color: var(--custom-light) !important;
+    --input-border-color: var(--custom-light) !important;
+    --input-text-color: var(--custom-darkest) !important;
 
-    --sidebar-background-color: var(--custom-bg) !important;
-    --sidebar-text-color: var(--custom-text-strong) !important;
-    --sidebar-border-color: var(--custom-line) !important;
+    --sidebar-background-color: var(--custom-lightest) !important;
+    --sidebar-text-color: var(--custom-darkest) !important;
+    --sidebar-border-color: var(--custom-light) !important;
     --sidebar-box-background: transparent !important;
-    --sidebar-box-border-color: var(--custom-line) !important;
-    --sidebar-box-border-width: 1px !important;
+    --sidebar-box-border-color: var(--custom-light) !important;
+    --sidebar-box-border-width: var(--custom-line-width) !important;
 
-    --table-background-color: var(--custom-bg) !important;
-    --table-border-color: var(--custom-line) !important;
+    --table-background-color: var(--custom-lightest) !important;
+    --table-border-color: var(--custom-light) !important;
   }
 
   /* The site sets type at 16px; Garamond's small x-height makes it read
@@ -241,27 +278,35 @@
   }
 
   ::selection {
-    background-color: var(--custom-text) !important;
-    color: var(--custom-bg) !important;
+    background-color: var(--custom-dark) !important;
+    color: var(--custom-lightest) !important;
   }
 
   ::placeholder {
-    color: var(--custom-text-muted) !important;
+    color: var(--custom-dark) !important;
   }
 
-  /* lh-interactive: anything clickable fades to half strength under the
-   * pointer. An element with a menu or panel open stays put. */
-  :is(button, toolbarbutton, menuitem, menu, richlistitem, a, input, select, textarea, .tabbrowser-tab, .urlbarView-row):not(
-    :disabled,
-    [disabled],
-    [open],
-    .urlbar-input
-  ) {
-    transition: opacity 150ms !important;
+  /* lh-btn-text: every button's label is lh-bold. */
+  button {
+    font-weight: 500 !important;
+  }
 
-    &:hover {
-      opacity: 0.5 !important;
-    }
+  /* lh-btn-base: as wide as its word, and never narrower than a square.
+   * macOS pages otherwise give every button a native minimum width. */
+  html|button {
+    min-width: var(--button-min-height) !important;
+  }
+
+  /* lh-interactive, for what has no token of its own: links and text fields
+   * take the light shade under the pointer. The address bar's own field is
+   * shaded by its background, below. */
+  :is(a[href], .text-link):not([disabled]):hover,
+  :is(textarea, input:is(:not([type]), [type="text"], [type="search"], [type="url"], [type="email"], [type="password"], [type="number"], [type="tel"])):not(
+      :disabled,
+      .urlbar-input
+    ):hover {
+    background-color: var(--custom-light) !important;
+    color: var(--custom-darkest) !important;
   }
 
   /* lh-float. Menus and panels set their own colors on the popup element,
@@ -271,64 +316,67 @@
     background-color: transparent !important;
     color-scheme: dark !important;
     -moz-window-shadow: none !important;
-    --text-color: var(--custom-text-strong) !important;
-    --panel-background-color: var(--custom-bg) !important;
-    --panel-text-color: var(--custom-text) !important;
-    --panel-border-color: var(--custom-line) !important;
-    --panel-border-radius: var(--custom-radius) !important;
+    --text-color: var(--custom-darkest) !important;
+    --panel-background-color: var(--custom-lightest) !important;
+    --panel-text-color: var(--custom-darkest) !important;
+    --panel-border-color: var(--custom-light) !important;
+    --panel-border-radius: 0 !important;
     --panel-box-shadow: none !important;
-    --panel-separator-color: var(--custom-line) !important;
-    --arrowpanel-background: var(--custom-bg) !important;
-    --arrowpanel-color: var(--custom-text) !important;
-    --arrowpanel-border-color: var(--custom-line) !important;
-    --menuitem-border-radius: var(--custom-radius) !important;
+    --panel-separator-color: var(--custom-light) !important;
+    --arrowpanel-background: var(--custom-lightest) !important;
+    --arrowpanel-color: var(--custom-darkest) !important;
+    --arrowpanel-border-color: var(--custom-light) !important;
+    --menuitem-border-radius: 0 !important;
   }
 
-  /* Rows in a menu, as in the site's command palette: text-dark, and the row
-   * the keyboard is on in text-darkest lh-bold. Hover is the fade above, so
-   * a row under the pointer isn't also made bold. */
+  /* Rows in a menu are lh-btn-row, as in the site's command palette: bold,
+   * text-darkest, and the light shade on the row under the pointer or the
+   * keyboard. */
   :is(menuitem, menu, .subviewbutton):not([disabled]) {
-    color: var(--custom-text) !important;
-  }
-
-  :is(menuitem, menu)[_moz-menuactive] {
-    background-color: transparent !important;
-  }
-
-  :is(menuitem, menu)[_moz-menuactive]:not([disabled], :hover),
-  .subviewbutton:not([disabled]):focus-visible {
-    color: var(--custom-text-strong) !important;
+    color: var(--custom-darkest) !important;
     font-weight: 500 !important;
+  }
+
+  :is(menuitem, menu)[_moz-menuactive]:not([disabled]) {
+    background-color: var(--custom-light) !important;
+    color: var(--custom-darkest) !important;
+  }
+
+  .subviewbutton:not([disabled]):focus-visible {
+    background-color: var(--custom-light) !important;
   }
 
   /* Eyebrow */
   :is(.subview-subheader, menucaption) {
-    color: var(--custom-text-muted) !important;
+    color: var(--custom-dark) !important;
     font-size: 0.75rem !important;
-    letter-spacing: 0.1em !important;
-    text-transform: uppercase !important;
+    font-weight: normal !important;
   }
 
   /* Components that declare their tokens inside their own shadow DOM have to
-   * be overridden on the element itself. */
+   * be overridden on the element itself. moz-page-nav is the site's sidebar:
+   * rows of words, the current one shaded. */
   :is(moz-page-nav, moz-page-nav-button) {
-    --page-nav-button-background-color-hover: transparent !important;
-    --page-nav-button-background-color-active: transparent !important;
-    --page-nav-button-background-color-selected: transparent !important;
+    --page-nav-button-background-color-hover: var(--custom-light) !important;
+    --page-nav-button-background-color-active: var(--custom-light) !important;
+    --page-nav-button-background-color-selected: var(--custom-light) !important;
+    --page-nav-button-border-radius: 0 !important;
     --page-nav-button-indicator-background-color: transparent !important;
-    --page-nav-button-text-color: var(--custom-text) !important;
-    --page-nav-button-text-color-hover: var(--custom-text) !important;
-    --page-nav-button-text-color-selected: var(--custom-text-strong) !important;
-  }
-
-  /* A selected item in a page's navigation: text-darkest lh-bold. */
-  button[selected] {
-    font-weight: 500 !important;
+    --page-nav-button-text-color: var(--custom-darkest) !important;
+    --page-nav-button-text-color-hover: var(--custom-darkest) !important;
+    --page-nav-button-text-color-active: var(--custom-darkest) !important;
+    --page-nav-button-text-color-selected: var(--custom-darkest) !important;
   }
 
   moz-promo {
     --promo-background-color: transparent !important;
     --promo-background-color-vibrant: transparent !important;
+  }
+
+  /* The selected-row shade would make a download's progress all but
+   * invisible. */
+  #contentAreaDownloadsView {
+    --download-progress-fill-color: var(--custom-darkest) !important;
   }
 }
 
@@ -336,124 +384,108 @@
 @-moz-document url("chrome://browser/content/browser.xhtml")
 {
   :root {
-    --toolbox-background-color: var(--custom-bg) !important;
-    --toolbox-background-color-inactive: var(--custom-bg) !important;
+    --toolbox-background-color: var(--custom-lightest) !important;
+    --toolbox-background-color-inactive: var(--custom-lightest) !important;
     --toolbox-background-image: none !important;
     --toolbox-background-gradient: none !important;
-    --toolbox-text-color: var(--custom-text-strong) !important;
-    --toolbox-text-color-inactive: var(--custom-text-strong) !important;
-    --toolbar-background-color: var(--custom-bg) !important;
-    --toolbar-text-color: var(--custom-text-strong) !important;
-    --chrome-content-separator-color: var(--custom-line) !important;
+    --toolbox-text-color: var(--custom-darkest) !important;
+    --toolbox-text-color-inactive: var(--custom-darkest) !important;
+    --toolbar-background-color: var(--custom-lightest) !important;
+    --toolbar-text-color: var(--custom-darkest) !important;
+    --chrome-content-separator-color: var(--custom-light) !important;
 
     --toolbar-field-background-color: transparent !important;
     --toolbar-field-background-color-focus: transparent !important;
-    --toolbar-field-border-color: var(--custom-line) !important;
-    --toolbar-field-border-color-focus: var(--custom-line) !important;
-    --toolbar-field-text-color: var(--custom-text) !important;
-    --toolbar-field-text-color-focus: var(--custom-text) !important;
+    --toolbar-field-border-color: var(--custom-light) !important;
+    --toolbar-field-border-color-focus: var(--custom-light) !important;
+    --toolbar-field-text-color: var(--custom-darkest) !important;
+    --toolbar-field-text-color-focus: var(--custom-darkest) !important;
 
-    --toolbarbutton-border-radius: var(--custom-radius) !important;
-    --toolbarbutton-icon-fill: var(--custom-text-strong) !important;
-    --toolbarbutton-icon-fill-attention: var(--custom-text-strong) !important;
-    --toolbarbutton-background-color-hover: transparent !important;
-    --toolbarbutton-background-color-active: transparent !important;
+    /* lh-btn-square: no border, the light shade under the pointer, and the
+     * same shade while its menu or panel is open or it's switched on. */
+    --toolbarbutton-border-radius: 0 !important;
+    --toolbarbutton-icon-fill: var(--custom-darkest) !important;
+    --toolbarbutton-icon-fill-attention: var(--custom-darkest) !important;
+    --toolbarbutton-background-color-hover: var(--custom-light) !important;
+    --toolbarbutton-background-color-active: var(--custom-light) !important;
 
-    /* Tabs are buttons: lh-btn-secondary, and lh-btn-primary when selected. */
-    --tab-border-radius: var(--custom-radius) !important;
+    /* Tabs are the site's sidebar rows: no border, and the light shade under
+     * the pointer and on the selected one. */
+    --tab-border-radius: 0 !important;
     --tab-background-color: transparent !important;
-    --tab-background-color-hover: transparent !important;
-    --tab-background-color-selected: var(--custom-text-strong) !important;
-    --tab-border-color: var(--custom-line) !important;
-    --tab-border-color-hover: var(--custom-line) !important;
+    --tab-background-color-hover: var(--custom-light) !important;
+    --tab-background-color-selected: var(--custom-light) !important;
+    --tab-border-color: transparent !important;
+    --tab-border-color-hover: transparent !important;
     --tab-border-color-selected: transparent !important;
-    --tab-border-color-selected-leading: var(--custom-text-strong) !important;
-    --tab-border-color-selected-trailing: var(--custom-text-strong) !important;
-    --tab-border-color-accent: linear-gradient(var(--custom-text-strong), var(--custom-text-strong)) !important;
+    --tab-border-color-selected-leading: transparent !important;
+    --tab-border-color-selected-trailing: transparent !important;
+    --tab-border-color-accent: none !important;
     --tab-box-shadow-selected: none !important;
-    --tab-text-color: var(--custom-text-strong) !important;
-    --tab-text-color-hover: var(--custom-text-strong) !important;
-    --tab-text-color-selected: var(--custom-bg) !important;
+    --tab-text-color: var(--custom-darkest) !important;
+    --tab-text-color-hover: var(--custom-darkest) !important;
+    --tab-text-color-selected: var(--custom-darkest) !important;
     --tab-icon-fill-loading: currentColor !important;
   }
 
   /* The address bar and the search bar declare these on themselves. */
   :is(:root, .urlbar, #searchbar) {
     --chrome-box-shadow: transparent !important;
-    --urlbar-border-radius: var(--custom-radius) !important;
-    --urlbar-background-border-radius: var(--custom-radius) !important;
-    --urlbar-background-color-focus: var(--custom-bg) !important;
-    --urlbar-background-border-open: 1px solid var(--custom-line) !important;
+    --urlbar-border-radius: 0 !important;
+    --urlbar-background-border-radius: 0 !important;
+    --urlbar-background-color-focus: var(--custom-lightest) !important;
+    --urlbar-background-border-open: var(--custom-line-width) solid var(--custom-light) !important;
     --urlbar-background-box-shadow-open: none !important;
     --urlbar-background-overhang-open: 0px !important;
     --urlbar-box-background-color: transparent !important;
-    --urlbar-box-background-color-hover: transparent !important;
-    --urlbar-box-background-color-active: transparent !important;
+    --urlbar-box-background-color-hover: var(--custom-light) !important;
+    --urlbar-box-background-color-active: var(--custom-light) !important;
     --urlbar-box-background-color-focus: transparent !important;
 
     /* The address bar's suggestions are the site's command palette. */
-    --urlbarview-border-radius: var(--custom-radius) !important;
-    --urlbarview-background-color-hover: transparent !important;
-    --urlbarview-background-color-selected: transparent !important;
+    --urlbarview-border-radius: 0 !important;
+    --urlbarview-background-color-hover: var(--custom-light) !important;
+    --urlbarview-background-color-selected: var(--custom-light) !important;
     --urlbarview-action-button-background-color: transparent !important;
-    --urlbarview-action-button-background-color-hover: transparent !important;
-    --urlbarview-text-color-selected: var(--custom-text-strong) !important;
-    --urlbarview-text-color-secondary: var(--custom-text) !important;
-    --urlbarview-text-color-action: var(--custom-text) !important;
-    --urlbarview-separator-color: var(--custom-line) !important;
+    --urlbarview-action-button-background-color-hover: var(--custom-light) !important;
+    --urlbarview-text-color-selected: var(--custom-darkest) !important;
+    --urlbarview-text-color-secondary: var(--custom-dark) !important;
+    --urlbarview-text-color-action: var(--custom-dark) !important;
+    --urlbarview-separator-color: var(--custom-light) !important;
   }
 
   .tabbrowser-tab {
     font-weight: 500 !important;
-
-    &[selected] .tab-close-button {
-      color: var(--custom-bg) !important;
-      fill: var(--custom-bg) !important;
-    }
   }
 
-  /* lh-btn-square for the find bar's buttons. */
-  findbar toolbarbutton {
-    border: 1px solid var(--custom-line) !important;
-    border-radius: var(--custom-radius) !important;
-    background-color: transparent !important;
-  }
-
-  /* lh-btn-square for toolbar buttons. */
-  #navigator-toolbox .toolbarbutton-1 > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-    border: 1px solid var(--custom-line) !important;
-    background-color: transparent !important;
-  }
-
-  /* A button whose menu or panel is open, or that's switched on, is
-   * selected: lh-btn-primary. */
-  #navigator-toolbox .toolbarbutton-1:is([open], [checked]) {
-    --toolbarbutton-icon-fill: var(--custom-bg) !important;
-
-    > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-      border-color: transparent !important;
-      background-color: var(--custom-text-strong) !important;
-    }
-  }
-
-  /* The address bar is an lh-input, which fades like any other control. */
-  #urlbar:not([open], [focused]):hover {
-    opacity: 0.5 !important;
+  /* The address bar is an lh-input, which takes the light shade under the
+   * pointer like any other control. */
+  .urlbar:not([focused], [open]):hover > .urlbar-background {
+    background-color: var(--custom-light) !important;
   }
 
   .urlbarView-row {
-    color: var(--custom-text) !important;
-
-    &[selected] {
-      color: var(--custom-text-strong) !important;
-      font-weight: 500 !important;
-    }
+    color: var(--custom-darkest) !important;
+    font-weight: 500 !important;
   }
 
+  /* A row's detail, as in the palette: a plain word in the dark shade, so
+   * "Switch to Tab" loses its outline and icon. */
+  .urlbarView-row :is(.urlbarView-url, .urlbarView-action) {
+    color: var(--custom-dark) !important;
+    font-weight: normal !important;
+  }
+
+  .urlbarView-row .urlbarView-action {
+    border-color: transparent !important;
+    background-image: none !important;
+    padding-inline: 0 !important;
+  }
+
+  /* Eyebrow */
   .urlbarView-row[label]::before {
-    color: var(--custom-text-muted) !important;
+    color: var(--custom-dark) !important;
     font-size: 0.75rem !important;
-    letter-spacing: 0.1em !important;
-    text-transform: uppercase !important;
+    font-weight: normal !important;
   }
 }
