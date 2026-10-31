@@ -21,7 +21,7 @@ main {
   box-sizing: border-box;
   width: 100%;
   max-width: 32em;
-  padding: var(--space-xlarge);
+  padding: var(--space-large);
 
   &:focus {
     outline: none;
@@ -38,37 +38,53 @@ section {
   }
 }
 
-h1 {
-  margin: 0;
-  font-size: var(--font-size-heading-xlarge);
-}
-
+/* The site's dialog title and Gatekeeper question: large, bold, the
+ * strongest shade. */
+h1,
 h2 {
   margin: 0;
-  font-size: var(--font-size-heading-large);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
 }
 
 p {
   margin: 0;
 }
 
+#summary,
+#wait-message {
+  color: var(--text-color-deemphasized);
+  font-size: var(--font-size-small);
+}
+
+/* The site's one display size, for a number to read across the room. */
 #countdown {
   font-size: calc(2 * var(--font-size-xxxlarge));
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
+/* A field: its label small and in the fainter shade, above the input. */
 label {
   display: flex;
   flex-direction: column;
   gap: var(--space-small);
+  color: var(--text-color-deemphasized);
+  font-size: var(--font-size-small);
 }
 
+/* What's typed is in the strongest shade, at the label's size. */
 input {
   margin: 0;
+  color: var(--text-color);
+  font-size: var(--font-size-small);
 }
 
 .buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-small);
 
   > button {
@@ -78,6 +94,4 @@ input {
 
 #close-tab {
   margin: 0;
-  padding-block: var(--space-medium);
-  font-size: var(--font-size-large);
 }

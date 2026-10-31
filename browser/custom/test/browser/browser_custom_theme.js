@@ -12,6 +12,7 @@ const sheetService = Cc[
 ].getService(Ci.nsIStyleSheetService);
 
 const SITE_BACKGROUND = "rgb(17, 16, 20)";
+const SITE_LIGHT = "rgba(179, 179, 179, 0.25)";
 const SITE_FONT = "Custom EB Garamond";
 
 function isRegistered() {
@@ -35,7 +36,12 @@ add_task(function test_browser_window_is_themed() {
   let tabStyle = getComputedStyle(
     gBrowser.selectedTab.querySelector(".tab-background")
   );
-  Assert.equal(tabStyle.borderTopLeftRadius, "2px");
+  Assert.equal(tabStyle.borderTopLeftRadius, "0px", "Corners are square");
+  Assert.equal(
+    tabStyle.backgroundColor,
+    SITE_LIGHT,
+    "The selected tab takes the light shade"
+  );
 });
 
 add_task(async function test_font_is_available() {
