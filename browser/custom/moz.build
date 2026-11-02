@@ -15,6 +15,9 @@ MOZ_SRC_FILES += [
     "CustomStartup.sys.mjs",
     "CustomTheme.sys.mjs",
     "CustomUpdate.sys.mjs",
+    "EmbedBlocker.sys.mjs",
+    "EmbedBlockerChild.sys.mjs",
+    "EmbedBlockerParent.sys.mjs",
     "SiteTimer.sys.mjs",
     "TabNumberHints.sys.mjs",
 ]

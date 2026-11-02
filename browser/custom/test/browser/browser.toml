@@ -8,6 +8,8 @@ support-files = [
 
 ["browser_custom_branding.js"]
 
+["browser_custom_embed_blocker.js"]
+
 ["browser_custom_gatekeeper.js"]
 
 ["browser_custom_site_timer.js"]
