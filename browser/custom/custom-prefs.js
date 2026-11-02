@@ -43,13 +43,18 @@ pref("browser.custom.gatekeeper.url", "https://www.levihanlen.com/gatekeeper");
 // Sites that lock until waited out and a Gatekeeper question is answered, ask
 // how many minutes they'll take, and lock again when the time is up
 // (SiteTimer.sys.mjs). Registrable domains, so youtube.com covers
-// www.youtube.com and music.youtube.com.
+// www.youtube.com and music.youtube.com. youtube-nocookie.com is where many
+// sites embed YouTube videos from.
 pref("browser.custom.siteTimer.enabled", true);
 pref("browser.custom.siteTimer.waitSeconds", 120);
 pref(
   "browser.custom.siteTimer.sites",
-  "youtube.com,spotify.com,reddit.com,x.com,twitter.com,instagram.com,facebook.com,tiktok.com,netflix.com,twitch.tv"
+  "youtube.com,youtube-nocookie.com,spotify.com,reddit.com,x.com,twitter.com,instagram.com,facebook.com,tiktok.com,netflix.com,twitch.tv"
 );
+// Timed sites embedded in other sites, such as a YouTube video in an article,
+// are blocked, with a button that opens them in a new tab, where they lock
+// (EmbedBlocker.sys.mjs).
+pref("browser.custom.siteTimer.blockEmbeds", true);
 
 // Address bar: no recommendations. Firefox Suggest resets its own defaults by
 // region at startup, so CustomStartup also turns it off once per profile, and
