@@ -16,6 +16,10 @@ const TEST_PAGE_URL =
   "https://example.com/browser/browser/custom/test/browser/file_search_page.html";
 
 add_setup(async function () {
+  // It would cover the test page and take its focus.
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.custom.gatekeeper.enabled", false]],
+  });
   await TestUtils.waitForCondition(
     () => Services.prefs.getIntPref("browser.custom.migrationVersion", 0) >= 2,
     "Waiting for CustomStartup's one-time migration to finish"
