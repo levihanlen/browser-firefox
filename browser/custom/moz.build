@@ -12,6 +12,8 @@ JAR_MANIFESTS += ["jar.mn"]
 
 MOZ_SRC_FILES += [
     "CustomGatekeeper.sys.mjs",
+    "CustomGatekeeperChild.sys.mjs",
+    "CustomGatekeeperParent.sys.mjs",
     "CustomStartup.sys.mjs",
     "CustomTheme.sys.mjs",
     "CustomUpdate.sys.mjs",

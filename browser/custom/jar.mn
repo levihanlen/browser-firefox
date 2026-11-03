@@ -4,6 +4,9 @@
 
 browser.jar:
     content/browser/custom/embed-blocked.css (content/embed-blocked.css)
+    content/browser/custom/gatekeeper.css (content/gatekeeper.css)
+    content/browser/custom/gatekeeper.html (content/gatekeeper.html)
+    content/browser/custom/gatekeeper.mjs (content/gatekeeper.mjs)
     content/browser/custom/site-timer.css (content/site-timer.css)
     content/browser/custom/site-timer.html (content/site-timer.html)
     content/browser/custom/site-timer.mjs (content/site-timer.mjs)

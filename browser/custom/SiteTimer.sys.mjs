@@ -17,8 +17,8 @@ const DIALOG_URL = "chrome://browser/content/custom/site-timer.html";
 
 /**
  * Asked after the wait, one at a time. `pass` is the answer that lets the
- * site through. The same questions as the Gatekeeper page on levihanlen.com,
- * which timed sites skip.
+ * site through. CustomGatekeeper asks them too, and they're the same as the
+ * Gatekeeper's on levihanlen.com.
  *
  * @type {Array<{text: string, pass: "Yes" | "No"}>}
  */
@@ -56,6 +56,36 @@ export function timedSiteFor(uri) {
     .split(",")
     .map(s => s.trim().toLowerCase());
   return sites.includes(site) ? site : null;
+}
+
+/**
+ * Keeps media in `browser` paused, including media that starts later, such as
+ * a video that autoplays once the page loads.
+ *
+ * @param {MozBrowser} browser
+ * @returns {function(boolean): void}
+ *   Stops holding the media. Pass true to play whatever was paused.
+ */
+export function holdMedia(browser) {
+  let controller = browser.browsingContext?.mediaController;
+  if (!controller) {
+    return () => {};
+  }
+  let paused = false;
+  let pause = () => {
+    if (controller.isPlaying) {
+      controller.pause("user");
+      paused = true;
+    }
+  };
+  controller.addEventListener("playbackstatechange", pause);
+  pause();
+  return play => {
+    controller.removeEventListener("playbackstatechange", pause);
+    if (play && paused) {
+      controller.play();
+    }
+  };
 }
 
 /**
@@ -244,7 +274,7 @@ export const SiteTimer = {
         },
         args
       );
-    let releaseMedia = this._holdMedia(browser);
+    let releaseMedia = holdMedia(browser);
     let closed = closedPromise.then(() => {
       this._prompts.delete(browser);
       releaseMedia(args.minutes > 0);
@@ -277,35 +307,5 @@ export const SiteTimer = {
     ) {
       this._sessions.delete(site);
     }
-  },
-
-  /**
-   * Keeps media in `browser` paused, including media that starts later, such
-   * as a video that autoplays once the page loads.
-   *
-   * @param {MozBrowser} browser
-   * @returns {function(boolean): void}
-   *   Stops holding the media. Pass true to play whatever was paused.
-   */
-  _holdMedia(browser) {
-    let controller = browser.browsingContext?.mediaController;
-    if (!controller) {
-      return () => {};
-    }
-    let paused = false;
-    let pause = () => {
-      if (controller.isPlaying) {
-        controller.pause("user");
-        paused = true;
-      }
-    };
-    controller.addEventListener("playbackstatechange", pause);
-    pause();
-    return play => {
-      controller.removeEventListener("playbackstatechange", pause);
-      if (play && paused) {
-        controller.play();
-      }
-    };
   },
 };

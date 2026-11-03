@@ -3,6 +3,8 @@ category browser-before-ui-startup moz-src:///browser/custom/CustomTheme.sys.mjs
 category browser-before-ui-startup moz-src:///browser/custom/CustomUpdate.sys.mjs CustomUpdate.init
 category browser-before-ui-startup moz-src:///browser/custom/SiteTimer.sys.mjs SiteTimer.init
 category browser-before-ui-startup moz-src:///browser/custom/EmbedBlocker.sys.mjs EmbedBlocker.init
+category browser-before-ui-startup moz-src:///browser/custom/CustomGatekeeper.sys.mjs CustomGatekeeper.init
 category browser-window-load moz-src:///browser/custom/CustomStartup.sys.mjs CustomStartup.initWindow
 category browser-window-load moz-src:///browser/custom/SiteTimer.sys.mjs SiteTimer.initWindow
+category browser-window-load moz-src:///browser/custom/CustomGatekeeper.sys.mjs CustomGatekeeper.initWindow
 category browser-window-load moz-src:///browser/custom/TabNumberHints.sys.mjs TabNumberHints.initWindow

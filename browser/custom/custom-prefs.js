@@ -34,11 +34,22 @@ pref(
   "https://www.levihanlen.com/search?q={searchTerms}"
 );
 
-// Sites typed or picked in the address bar open levihanlen.com/gatekeeper
-// first (CustomGatekeeper.sys.mjs), except the timed sites below, which lock
-// themselves instead.
+// Every site but Levi's own is covered by a Gatekeeper question, however it
+// was reached: typed, followed from a link, or redirected to
+// (CustomGatekeeper.sys.mjs). Answering lets the site through while a tab is
+// on it and for graceMinutes after the last one leaves. The timed sites below
+// lock themselves instead. allowedHosts and their subdomains are never asked
+// about: sign-in and checkout pages that other sites send you through and
+// back from.
 pref("browser.custom.gatekeeper.enabled", true);
-pref("browser.custom.gatekeeper.url", "https://www.levihanlen.com/gatekeeper");
+pref("browser.custom.gatekeeper.graceMinutes", 10);
+pref("browser.custom.gatekeeper.waitSeconds", 1);
+// For addresses with a word such as "nsfw" in them.
+pref("browser.custom.gatekeeper.flaggedWaitSeconds", 10);
+pref(
+  "browser.custom.gatekeeper.allowedHosts",
+  "keep.google.com,accounts.google.com,appleid.apple.com,idmsa.apple.com,login.microsoftonline.com,login.live.com,auth0.com,okta.com,checkout.stripe.com,paypal.com"
+);
 
 // Sites that lock until waited out and a Gatekeeper question is answered, ask
 // how many minutes they'll take, and lock again when the time is up

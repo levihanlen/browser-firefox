@@ -5,12 +5,18 @@
     <title>Gatekeeper</title>
   </head>
   <body>
-    <p>Stands in for levihanlen.com/gatekeeper, which passes the same way.</p>
+    <p>Links to ?to, and lets it through first the way levihanlen.com does.</p>
+    <a id="link">Link</a>
+    <button id="pass">Pass</button>
     <script>
-      let target = new URLSearchParams(location.search).get("url");
-      if (location.hash == "#pass" && target) {
-        window.location.href = target;
-      }
+      let to = new URLSearchParams(location.search).get("to");
+      document.getElementById("link").href = to;
+      document.getElementById("pass").addEventListener("click", () => {
+        window.dispatchEvent(
+          new CustomEvent("lh-gatekeeper-pass", { detail: to })
+        );
+        window.location.href = to;
+      });
     </script>
   </body>
 </html>

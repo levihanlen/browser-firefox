@@ -92,6 +92,8 @@ add_setup(async function () {
     set: [
       ["browser.custom.siteTimer.sites", SITE],
       ["browser.custom.siteTimer.waitSeconds", 0],
+      // It would cover the untimed pages.
+      ["browser.custom.gatekeeper.enabled", false],
     ],
   });
   registerCleanupFunction(resetSessions);

@@ -152,6 +152,8 @@
     --background-color-success: oklch(80% 0.25 150 / 0.2) !important;
     --background-color-warning: oklch(80% 0.25 90 / 0.2) !important;
     --background-color-critical: oklch(80% 0.25 25 / 0.2) !important;
+    /* lh-red, the site's warning text. */
+    --text-color-error: oklch(80% 0.25 25) !important;
 
     /* lh-link: underlined in the strongest white. */
     --link-color: var(--custom-darkest) !important;
