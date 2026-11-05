@@ -23,3 +23,7 @@ header {
 #flagged {
   color: var(--text-color-error);
 }
+
+#leave {
+  margin: 0;
+}

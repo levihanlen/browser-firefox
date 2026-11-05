@@ -28,15 +28,20 @@
   <body>
     <main id="gatekeeper">
       <header>
-        <h1>Gatekeeper</h1>
+        <h1 id="heading">Gatekeeper</h1>
         <p id="url"></p>
       </header>
       <section>
         <p id="flagged" hidden>this looks like a distraction</p>
+        <label id="minutes-field" hidden>
+          <span id="minutes-label">How many minutes?</span>
+          <input id="minutes" type="number" min="1" max="600" step="1" />
+        </label>
         <h2 id="question"></h2>
         <div id="answers" class="buttons"></div>
         <p id="wait-note"></p>
       </section>
+      <button id="leave" class="primary" type="button" hidden>Leave</button>
     </main>
   </body>
 </html>

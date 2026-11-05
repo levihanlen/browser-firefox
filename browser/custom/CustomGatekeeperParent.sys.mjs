@@ -22,7 +22,7 @@ export class CustomGatekeeperParent extends JSWindowActorParent {
       (page?.schemeIs("http") || page?.schemeIs("https")) &&
       lazy.isOwnHost(page.host)
     ) {
-      lazy.CustomGatekeeper.letURLThrough(data.url);
+      lazy.CustomGatekeeper.letURLThrough(data.url, data.minutes);
     }
   }
 }

@@ -8,6 +8,9 @@
     <p>Links to ?to, and lets it through first the way levihanlen.com does.</p>
     <a id="link">Link</a>
     <button id="pass">Pass</button>
+    <button id="pass-minutes">Pass for 45 minutes</button>
+    <button id="ask">Ask</button>
+    <p id="answer"></p>
     <script>
       let to = new URLSearchParams(location.search).get("to");
       document.getElementById("link").href = to;
@@ -16,6 +19,24 @@
           new CustomEvent("lh-gatekeeper-pass", { detail: to })
         );
         window.location.href = to;
+      });
+      document.getElementById("pass-minutes").addEventListener("click", () => {
+        window.dispatchEvent(
+          new CustomEvent("lh-gatekeeper-pass", {
+            detail: JSON.stringify({ url: to, minutes: 45 }),
+          })
+        );
+        window.location.href = to;
+      });
+      let minutes = null;
+      window.addEventListener("lh-gatekeeper-minutes", event => {
+        minutes = event.detail;
+      });
+      document.getElementById("ask").addEventListener("click", () => {
+        window.dispatchEvent(
+          new CustomEvent("lh-gatekeeper-ask", { detail: to })
+        );
+        document.getElementById("answer").textContent = minutes;
       });
     </script>
   </body>
