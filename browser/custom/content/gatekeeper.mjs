@@ -61,7 +61,6 @@ window.addEventListener("DOMContentLoaded", () => {
     let button = document.createElement("button");
     button.type = "button";
     button.textContent = answer;
-    button.disabled = true;
     button.addEventListener("click", () => {
       if (answer == pass) {
         args.passed = true;
@@ -79,7 +78,8 @@ window.addEventListener("DOMContentLoaded", () => {
   if (Math.random() < 0.5) {
     buttons.reverse();
   }
-  document.getElementById("answers").replaceChildren(...buttons);
+  let answers = document.getElementById("answers");
+  answers.replaceChildren(...buttons);
 
   let waitNote = document.getElementById("wait-note");
   let { waitSeconds } = args;
@@ -87,16 +87,17 @@ window.addEventListener("DOMContentLoaded", () => {
     waitSeconds == 1
       ? "wait 1 second to answer."
       : `wait ${waitSeconds} seconds to answer.`;
-  let waited = false;
   let updateButtons = () => {
     for (let b of buttons) {
-      b.disabled = !waited || (args.limited && !enteredMinutes());
+      b.disabled = args.limited && !enteredMinutes();
     }
   };
   minutes.addEventListener("input", updateButtons);
+  updateButtons();
+  // The answers stay hidden through the wait, so the question is all there is
+  // to read, not a row of answers to match by habit.
   setTimeout(() => {
-    waited = true;
-    updateButtons();
+    answers.hidden = false;
     waitNote.hidden = true;
   }, waitSeconds * 1000);
 

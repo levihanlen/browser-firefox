@@ -67,6 +67,11 @@ async function expectNoCover(browser) {
   Assert.ok(!CustomGatekeeper._prompts.has(browser), "No Gatekeeper");
 }
 
+// Measuring lays the answers out, so they can be clicked once this is true.
+function answersAreShowing(cover) {
+  return cover.get("answers").getBoundingClientRect().height > 0;
+}
+
 /**
  * @param {object} cover
  * @param {boolean} pass
@@ -75,7 +80,7 @@ async function expectNoCover(browser) {
 async function answer(cover, pass) {
   let buttons = [...cover.get("answers").children];
   await TestUtils.waitForCondition(
-    () => buttons.every(b => !b.disabled),
+    () => answersAreShowing(cover),
     "Waiting for the answers"
   );
   let text = cover.get("question").textContent;
@@ -483,8 +488,8 @@ add_task(async function test_waits_before_answering() {
   await BrowserTestUtils.withNewTab(OTHER_URL, async browser => {
     let cover = await waitForCover(browser);
     Assert.ok(
-      [...cover.get("answers").children].every(b => b.disabled),
-      "The answers wait"
+      !answersAreShowing(cover),
+      "The answers don't show during the wait"
     );
     Assert.equal(
       cover.get("wait-note").textContent,
@@ -528,7 +533,7 @@ add_task(async function test_changing_the_minutes() {
     let cover = await waitForCover(browser);
     let buttons = [...cover.get("answers").children];
     await TestUtils.waitForCondition(
-      () => buttons.every(b => !b.disabled),
+      () => answersAreShowing(cover),
       "Waiting for the answers"
     );
     for (let bad of ["", "0", "1.5", "601"]) {
@@ -653,8 +658,12 @@ add_task(async function test_staying_takes_a_new_number() {
   Assert.equal(cover.get("minutes").value, "", "Nothing is filled in");
   Assert.ok(!cover.get("leave").hidden, "Leaving is one click");
   await TestUtils.waitForCondition(
-    () => cover.get("wait-note").hidden,
-    "Waiting for the wait"
+    () => answersAreShowing(cover),
+    "Waiting for the answers"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(cover.get("wait-note")),
+    "The answers take the note's place"
   );
   Assert.ok(
     [...cover.get("answers").children].every(b => b.disabled),
