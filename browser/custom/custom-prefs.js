@@ -36,13 +36,20 @@ pref(
 
 // Every site but Levi's own is covered by a Gatekeeper question, however it
 // was reached: typed, followed from a link, or redirected to
-// (CustomGatekeeper.sys.mjs). Answering lets the site through while a tab is
-// on it and for graceMinutes after the last one leaves. The timed sites below
-// lock themselves instead. allowedHosts and their subdomains are never asked
-// about: sign-in and checkout pages that other sites send you through and
-// back from.
+// (CustomGatekeeper.sys.mjs). Answering lets the site through for a number of
+// minutes, starting at defaultMinutes, that only run while it's in view. A
+// visit lasts while a tab is on the site and for graceMinutes after the last
+// one leaves. noLimitSites are registrable domains that get the question but no
+// minutes: what's worked in for hours. The timed sites below lock themselves
+// instead. allowedHosts and their subdomains are never asked about: sign-in and
+// checkout pages that other sites send you through and back from.
 pref("browser.custom.gatekeeper.enabled", true);
 pref("browser.custom.gatekeeper.graceMinutes", 10);
+pref("browser.custom.gatekeeper.defaultMinutes", 30);
+pref(
+  "browser.custom.gatekeeper.noLimitSites",
+  "github.com,vercel.com,neon.tech,claude.ai,google.com"
+);
 pref("browser.custom.gatekeeper.waitSeconds", 1);
 // For addresses with a word such as "nsfw" in them.
 pref("browser.custom.gatekeeper.flaggedWaitSeconds", 10);
