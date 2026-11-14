@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Laid out like one of life-nextjs's apps: every line is a row (32px) or a
+ * wrapped line padded to sit where a row's text would, text starts 8px in,
+ * groups are an empty row apart and the rows inside a group touch. Colors and
+ * sizes come from theme.css. */
+
 html,
 body {
   height: 100%;
@@ -17,11 +22,11 @@ body {
 main {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xxlarge);
+  gap: var(--custom-row, var(--space-xxlarge));
   box-sizing: border-box;
   width: 100%;
   max-width: 32em;
-  padding: var(--space-large);
+  padding-inline: var(--custom-inset, var(--space-small));
 
   &:focus {
     outline: none;
@@ -31,61 +36,73 @@ main {
 section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-large);
 
   &[hidden] {
     display: none;
   }
 }
 
-/* The site's dialog title and Gatekeeper question: large, bold, the
- * strongest shade. */
-h1,
-h2 {
+/* lh-wrap: text that may wrap, its first line where a row's text would be. */
+:is(h1, h2, p, label) {
   margin: 0;
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color);
+  padding: var(--custom-inset, var(--space-small));
 }
 
-p {
-  margin: 0;
+/* The question: the largest text, in the strongest shade. Bold is for
+ * controls, so it is normal. */
+h1,
+h2 {
+  font-size: var(--custom-text-large, var(--font-size-large));
+  font-weight: normal;
+  color: var(--text-color);
 }
 
 #summary,
 #wait-message {
   color: var(--text-color-deemphasized);
-  font-size: var(--font-size-small);
 }
 
-/* The site's one display size, for a number to read across the room. */
+/* The site's one display size (text-7xl, lh-bold), for a number to read
+ * across the room. */
 #countdown {
-  font-size: calc(2 * var(--font-size-xxxlarge));
+  font-size: var(--custom-text-display, var(--font-size-xxxlarge));
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-/* A field: its label small and in the fainter shade, above the input. */
+/* A field: its label a row in the fainter shade, the input the row under
+ * it. */
 label {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-small);
+  display: block;
+  padding: 0;
+  line-height: var(--custom-row, var(--size-item-large));
+  text-indent: var(--custom-inset, var(--space-small));
   color: var(--text-color-deemphasized);
-  font-size: var(--font-size-small);
+
+  &[hidden] {
+    display: none;
+  }
 }
 
-/* What's typed is in the strongest shade, at the label's size. */
 input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--custom-row, var(--size-item-large));
+  line-height: normal;
+  text-indent: 0;
   margin: 0;
+  padding-block: 0;
+  padding-inline: var(--custom-inset, var(--space-small));
   color: var(--text-color);
-  font-size: var(--font-size-small);
 }
 
+/* Words side by side; each one's own padding is the space between them. */
 .buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-small);
+  gap: 0;
 
   > button {
     margin: 0;
@@ -93,5 +110,6 @@ input {
 }
 
 #close-tab {
+  align-self: flex-start;
   margin: 0;
 }

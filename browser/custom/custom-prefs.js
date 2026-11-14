@@ -17,6 +17,11 @@ pref("media.plugin_helper_process.enabled", false);
 // can't be styled.
 pref("browser.custom.theme.enabled", true);
 pref("widget.macos.native-context-menus", false);
+// Nothing animates. Firefox's own interface drops its motion when the system
+// asks for less, so this asks for less, which websites that honor
+// prefers-reduced-motion see too.
+pref("ui.prefersReducedMotion", 1);
+pref("toolkit.cosmeticAnimations.enabled", false);
 // Find-in-page highlights in the site's selection colors.
 pref("ui.textSelectAttentionBackground", "#dbdbdc");
 pref("ui.textSelectAttentionForeground", "#111014");

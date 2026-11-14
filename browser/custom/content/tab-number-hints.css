@@ -4,7 +4,7 @@
 
 .tabbrowser-tab[custom-tab-hint] .tab-label::before {
   margin-inline-end: 0.4em;
-  opacity: var(--opacity-deemphasized-strong);
+  color: var(--custom-dark, var(--text-color-deemphasized));
   font-variant-numeric: tabular-nums;
 }
 
