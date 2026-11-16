@@ -1398,8 +1398,8 @@ pref("privacy.globalprivacycontrol.pbmode.enabled", true);
 pref("network.proxy.share_proxy_settings",  false); // use the same proxy settings for all protocols
 
 // simple gestures support
-pref("browser.gesture.swipe.left", "Browser:BackOrBackDuplicate");
-pref("browser.gesture.swipe.right", "Browser:ForwardOrForwardDuplicate");
+pref("browser.gesture.swipe.left", "");
+pref("browser.gesture.swipe.right", "");
 pref("browser.gesture.swipe.up", "cmd_scrollTop");
 pref("browser.gesture.swipe.down", "cmd_scrollBottom");
 pref("browser.gesture.pinch.latched", false);
